@@ -215,10 +215,6 @@
             position: relative;
             overflow: hidden;
             background-color: var(--bg);
-            background-image: 
-                linear-gradient(var(--grid-color) 1px, transparent 1px),
-                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-            background-size: 40px 40px;
             cursor: grab;
         }
         .canvas-wrapper:active { cursor: grabbing; }
@@ -357,7 +353,7 @@
                 <div class="btn-grid">
                     <button class="btn btn-outline" onclick="document.getElementById('fileInput').click()" id="btnUpload">Dosya Seç</button>
                     <button class="btn btn-outline" onclick="loadSample()" id="btnSample">Örnek Yükle</button>
-                    <!-- MAAŞALLAH GİBİ ÇALIŞACAK MAVİ BUTON -->
+                    <!-- MAVİ BUTON BURADA -->
                     <button class="btn btn-full" onclick="startAnalysis()" id="btnAnalyze">Analiz & Simülasyonu Başlat</button>
                 </div>
             </div>
@@ -527,31 +523,31 @@
 
             applyTranslations();
             resizeCanvas();
-            loadSample(); // Sisteme girer girmez görselleştirme yapsın
+            window.loadSample(); 
         };
 
-        // KÜRESEL FONKSİYONLAR (Tıklamaların çalışması için dışarıda)
-        function toggleLang() {
+        // KÜRESEL FONKSİYONLAR 
+        window.toggleLang = function() {
             currentLang = currentLang === 'tr' ? 'en' : 'tr';
             document.getElementById('langBtn').innerText = currentLang === 'tr' ? 'TR' : 'EN';
             applyTranslations();
             if(toolpaths.length > 0) updateStatsUI();
-        }
+        };
 
-        function toggleTheme() {
+        window.toggleTheme = function() {
             isDarkTheme = !isDarkTheme;
             if(isDarkTheme) document.body.classList.remove('light-theme');
             else document.body.classList.add('light-theme');
             document.getElementById('themeBtn').innerText = dict[currentLang][isDarkTheme ? 'themeLight' : 'themeDark'];
             drawCanvas();
-        }
+        };
 
-        function toggleUnit() {
+        window.toggleUnit = function() {
             currentUnit = currentUnit === 'metric' ? 'imperial' : 'metric';
             document.getElementById('unitBtn').innerText = dict[currentLang][currentUnit === 'metric' ? 'unitSI' : 'unitImp'];
             document.getElementById('unitBtn').classList.toggle('active', currentUnit==='metric');
             if(toolpaths.length > 0) updateStatsUI();
-        }
+        };
 
         function applyTranslations() {
             const t = dict[currentLang];
@@ -604,8 +600,8 @@
             transform.y = (canvas.height / 2) + (cy * transform.scale); 
         }
 
-        // --- İŞTE O MAVİ BUTONU ÇALIŞTIRAN ANA MOTOR ---
-        function startAnalysis() {
+        // --- ANA ANALİZ MOTORU ---
+        window.startAnalysis = function() {
             try {
                 const raw = document.getElementById('gcodeInput').value.trim();
                 if (!raw) {
@@ -732,7 +728,7 @@
                 console.error("G-Code Hatası:", error);
                 alert(currentLang === 'tr' ? "Analiz sırasında bir hata oluştu. G-Code dosyanızın formatı bozuk olabilir." : "An error occurred. Your G-Code formatting might be invalid.");
             }
-        }
+        };
 
         function drawCanvas() {
             if(!ctx || !canvas) return;
@@ -740,7 +736,7 @@
             
             // GRID
             ctx.beginPath();
-            ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--grid-color').trim();
+            ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--grid-color').trim() || 'rgba(100,100,100,0.1)';
             ctx.lineWidth = 1;
             const gridSize = 50 * transform.scale;
             if(gridSize > 5) {
@@ -761,7 +757,7 @@
             ctx.moveTo(originX, 0); ctx.lineTo(originX, canvas.height);
             ctx.stroke();
             
-            ctx.beginPath(); ctx.arc(originX, originY, 4, 0, Math.PI*2); ctx.fillStyle = 'var(--warning)'; ctx.fill();
+            ctx.beginPath(); ctx.arc(originX, originY, 4, 0, Math.PI*2); ctx.fillStyle = '#f59e0b'; ctx.fill();
 
             // ÇİZİM
             const drawCount = Math.floor(toolpaths.length * (currentDrawLimit / 100));
@@ -778,11 +774,11 @@
                 ctx.beginPath();
                 if (p.type === 'G0') {
                     ctx.moveTo(px1, py1); ctx.lineTo(px2, py2);
-                    ctx.strokeStyle = 'var(--g0-color)';
+                    ctx.strokeStyle = '#ef4444';
                     ctx.lineWidth = 1.5;
                 } else if (p.type === 'G1') {
                     ctx.moveTo(px1, py1); ctx.lineTo(px2, py2);
-                    ctx.strokeStyle = 'var(--g1-color)';
+                    ctx.strokeStyle = '#38bdf8';
                     ctx.lineWidth = 2.5;
                 } else if (p.type === 'G2' || p.type === 'G3') {
                     let pcx = transform.x + p.cx * transform.scale;
@@ -790,7 +786,7 @@
                     let pr = p.r * transform.scale;
                     
                     ctx.arc(pcx, pcy, pr, -p.sa, -p.ea, !p.ccw); 
-                    ctx.strokeStyle = 'var(--g2-color)';
+                    ctx.strokeStyle = '#10b981';
                     ctx.lineWidth = 2.5;
                 }
                 ctx.stroke();
@@ -808,13 +804,13 @@
         }
 
         // SİMÜLASYON ANİMASYONU
-        function updateSimulationFromSlider() {
+        window.updateSimulationFromSlider = function() {
             currentDrawLimit = parseFloat(document.getElementById('timeSlider').value);
             document.getElementById('lblProgress').innerText = currentDrawLimit;
             drawCanvas();
-        }
+        };
 
-        function togglePlay() {
+        window.togglePlay = function() {
             if(toolpaths.length === 0) return;
             isPlaying = !isPlaying;
             const icon = document.getElementById('playIcon');
@@ -826,14 +822,14 @@
                 icon.innerHTML = `<polygon points="5 3 19 12 5 21 5 3"></polygon>`;
                 cancelAnimationFrame(animationFrameId);
             }
-        }
+        };
 
         function animatePlay() {
             if(!isPlaying) return;
             currentDrawLimit += 0.5; 
             if(currentDrawLimit > 100) {
                 currentDrawLimit = 100;
-                togglePlay();
+                window.togglePlay();
             }
             document.getElementById('timeSlider').value = currentDrawLimit;
             document.getElementById('lblProgress').innerText = Math.floor(currentDrawLimit);
@@ -868,16 +864,16 @@
         }
 
         // DOSYA SEÇİMİ
-        function handleFileUpload(event) {
+        window.handleFileUpload = function(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = e => { document.getElementById('gcodeInput').value = e.target.result; startAnalysis(); };
+                reader.onload = e => { document.getElementById('gcodeInput').value = e.target.result; window.startAnalysis(); };
                 reader.readAsText(file);
             }
-        }
+        };
 
-        function loadSample() {
+        window.loadSample = function() {
             const sampleGcode = `(Havacılık Komponenti - Dairesel Cep Boşaltma ve Dış Kontur)
 G21 G90 G94 (Metrik, Mutlak, Dakikada İlerleme)
 F1200 S3500 M3
@@ -906,11 +902,11 @@ G0 Z20 (Bitiş)
 M5
 M30`;
             document.getElementById('gcodeInput').value = sampleGcode;
-            startAnalysis();
-        }
+            window.startAnalysis();
+        };
 
         // AI CO-PILOT
-        function toggleAIChat() {
+        window.toggleAIChat = function() {
             aiChatOpen = !aiChatOpen;
             const win = document.getElementById('aiChatWindow');
             if(aiChatOpen) {
@@ -921,7 +917,7 @@ M30`;
             } else {
                 win.classList.remove('open');
             }
-        }
+        };
 
         function appendAIMessage(sender, text) {
             const div = document.getElementById('aiMessages');
@@ -932,7 +928,7 @@ M30`;
             div.scrollTop = div.scrollHeight;
         }
 
-        function analyzeGCodeContext() {
+        window.analyzeGCodeContext = function() {
             if(toolpaths.length === 0) {
                 appendAIMessage('bot', dict[currentLang].aiErr); return;
             }
@@ -961,7 +957,7 @@ M30`;
                 }
                 appendAIMessage('bot', report);
             }, 1000);
-        }
+        };
     </script>
 </body>
 </html>
