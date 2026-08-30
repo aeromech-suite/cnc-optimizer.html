@@ -104,7 +104,7 @@
 
         /* SOL PANEL (GİRDİ & KONTROL) */
         .sidebar {
-            width: 420px;
+            width: 440px;
             background: var(--panel);
             border-right: 1px solid var(--border);
             display: flex;
@@ -113,6 +113,7 @@
             flex-shrink: 0;
             transition: background-color 0.3s;
             z-index: 10;
+            padding-bottom: 100px; /* AI Butonunun üzerini kapatmaması için güvenlik boşluğu */
         }
         .sidebar-section {
             padding: 20px;
@@ -132,7 +133,7 @@
         .editor-wrapper {
             position: relative;
             width: 100%;
-            height: 250px;
+            height: 220px;
             border-radius: 8px;
             border: 1px solid var(--border);
             background: var(--input-bg);
@@ -153,19 +154,20 @@
         }
         .gcode-input:focus { outline: none; box-shadow: inset 0 0 0 2px var(--primary-glow); }
 
+        /* KAPSAMLI MAKİNE AYARLARI */
+        .input-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .input-grid-2 label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+        .input-grid-2 input {
+            width: 100%; padding: 10px; background: var(--input-bg); border: 1px solid var(--border); 
+            color: var(--text); border-radius: 6px; box-sizing: border-box; font-family: 'Fira Code', monospace; font-size: 13px;
+        }
+        .input-grid-2 input:focus { outline: none; border-color: var(--primary); }
+
         /* BUTONLAR */
         .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
         .btn {
-            width: 100%;
-            padding: 12px;
-            background: var(--primary);
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 13px;
+            width: 100%; padding: 12px; background: var(--primary); color: #000; border: none;
+            border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 13px;
         }
         .btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
         .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
@@ -188,6 +190,8 @@
         .stat-card strong { font-size: 16px; font-family: 'Fira Code', monospace; color: var(--text); }
         .stat-card.highlight { border-color: var(--primary); background: var(--primary-glow); }
         .stat-card.highlight strong { color: var(--primary); }
+        .stat-card.cost { border-color: var(--success); background: rgba(16, 185, 129, 0.1); }
+        .stat-card.cost strong { color: var(--success); }
 
         /* SAĞ PANEL (CANVAS & SİMÜLASYON) */
         .main-view {
@@ -223,6 +227,7 @@
         /* SİMÜLASYON KONTROLLERİ */
         .timeline-container {
             padding: 20px;
+            padding-bottom: 100px; /* AI Butonu İçin Güvenlik Boşluğu */
             background: var(--panel);
             border-top: 1px solid var(--border);
             display: flex;
@@ -237,33 +242,15 @@
             height: 6px;
         }
         input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 6px;
-            background: var(--border);
-            border-radius: 3px;
+            width: 100%; height: 6px; background: var(--border); border-radius: 3px;
         }
         input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 18px;
-            width: 18px;
-            border-radius: 50%;
-            background: var(--primary);
-            cursor: pointer;
-            margin-top: -6px;
-            box-shadow: 0 0 10px var(--primary-glow);
+            -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%;
+            background: var(--primary); cursor: pointer; margin-top: -6px; box-shadow: 0 0 10px var(--primary-glow);
         }
         .play-btn {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: 0.2s;
+            background: transparent; border: 1px solid var(--border); color: var(--text); width: 40px; height: 40px;
+            border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s;
         }
         .play-btn:hover { background: var(--primary); color: #000; border-color: var(--primary); }
         .progress-text { font-family: 'Fira Code', monospace; font-size: 13px; color: var(--primary); font-weight: 600; width: 80px; text-align: right;}
@@ -292,7 +279,7 @@
             position: fixed;
             bottom: 100px;
             right: 30px;
-            width: 360px;
+            width: 380px;
             max-height: 500px;
             background: rgba(11, 17, 32, 0.85);
             backdrop-filter: blur(16px);
@@ -349,13 +336,27 @@
                 <div class="editor-wrapper">
                     <textarea id="gcodeInput" class="gcode-input" spellcheck="false" placeholder="G-Code buraya yapıştırın veya dosya yükleyin..."></textarea>
                 </div>
-                <input type="file" id="fileInput" accept=".nc,.gcode,.txt,.tap" style="display:none;" onchange="handleFileUpload(event)">
                 <div class="btn-grid">
+                    <input type="file" id="fileInput" accept=".nc,.gcode,.txt,.tap" style="display:none;" onchange="handleFileUpload(event)">
                     <button class="btn btn-outline" onclick="document.getElementById('fileInput').click()" id="btnUpload">Dosya Seç</button>
                     <button class="btn btn-outline" onclick="loadSample()" id="btnSample">Örnek Yükle</button>
-                    <!-- MAVİ BUTON BURADA -->
-                    <button class="btn btn-full" onclick="startAnalysis()" id="btnAnalyze">Analiz & Simülasyonu Başlat</button>
                 </div>
+            </div>
+
+            <!-- YENİ EKLENEN KAPSAMLI ÖZELLİK: MAKİNE VE MALİYET AYARLARI -->
+            <div class="sidebar-section">
+                <div class="section-title" id="lblMachineSet">Makine & Maliyet Ayarları</div>
+                <div class="input-grid-2">
+                    <div>
+                        <label id="lblRapidSet">G00 Hızı (mm/dk)</label>
+                        <input type="number" id="rapidFeed" value="4000">
+                    </div>
+                    <div>
+                        <label id="lblHourlyCost">Saatlik Ücret ($/sa)</label>
+                        <input type="number" id="hourlyRate" value="65">
+                    </div>
+                </div>
+                <button class="btn btn-full" onclick="startAnalysis()" id="btnAnalyze" style="margin-top: 5px;">Analiz & Simülasyonu Başlat</button>
             </div>
 
             <div class="sidebar-section" style="flex:1;">
@@ -365,16 +366,17 @@
                         <span id="lblTime">Tahmini İşleme Süresi</span>
                         <strong id="statTime">00:00:00</strong>
                     </div>
-                    <div class="stat-card">
-                        <span id="lblLines">Toplam Satır (Blok)</span>
-                        <strong id="statLines">0</strong>
+                    <!-- YENİ MALİYET KARTI -->
+                    <div class="stat-card cost">
+                        <span id="lblCost">Tahmini Üretim Maliyeti</span>
+                        <strong id="statCost">$0.00</strong>
                     </div>
                     <div class="stat-card">
-                        <span id="lblCutDist">Kesim Mesafesi (G01/02/03)</span>
+                        <span id="lblCutDist">Kesim (G01/02/03)</span>
                         <strong id="statCut">0.00</strong>
                     </div>
                     <div class="stat-card">
-                        <span id="lblRapidDist">Hızlı Gezinme (G00)</span>
+                        <span id="lblRapidDist">Gezinme (G00)</span>
                         <strong id="statRapid">0.00</strong>
                     </div>
                     <div class="stat-card">
@@ -432,7 +434,7 @@
             AeroMech AI Co-Pilot
         </div>
         <div class="ai-messages" id="aiMessages"></div>
-        <button class="ai-analyze-btn" id="btnAIAnalyze" onclick="analyzeGCodeContext()">Takım Yolunu Yorumla</button>
+        <button class="ai-analyze-btn" id="btnAIAnalyze" onclick="analyzeGCodeContext()">Maliyet ve Optimizasyon Raporu Al</button>
     </div>
 
     <!-- %100 GÜVENLİ VE KÜRESEL JAVASCRIPT MOTORU -->
@@ -443,7 +445,7 @@
         let isDarkTheme = true;
         let toolpaths = []; 
         let globalBounds = { minX: 0, maxX: 0, minY: 0, maxY: 0, minZ: 0 };
-        let stats = { cutDist: 0, rapidDist: 0, timeMin: 0, lines: 0 };
+        let stats = { cutDist: 0, rapidDist: 0, timeMin: 0, lines: 0, cost: 0 };
         let transform = { x: 0, y: 0, scale: 1 };
         let isDragging = false;
         let dragStart = { x: 0, y: 0 };
@@ -460,27 +462,29 @@
                 themeLight: "Aydınlık Tema", themeDark: "Karanlık Tema",
                 unitSI: "Birim: SI (mm)", unitImp: "Birim: Imperial (in)",
                 lblDataEntry: "G-Code Veri Girişi", btnUpload: "Dosya Seç", btnSample: "Örnek Yükle", btnAnalyze: "Analiz & Simülasyonu Başlat",
-                lblAnalysisResults: "Analiz Sonuçları", lblTime: "Tahmini İşleme Süresi", lblLines: "Toplam Satır (Blok)",
-                lblCutDist: "Kesim Mesafesi (G01/02/03)", lblRapidDist: "Hızlı Gezinme (G00)", lblBoundsXY: "X-Y Sınırları (Min / Max)", lblBoundsZ: "Maks. Dalış (Z Derinliği)",
+                lblMachineSet: "Makine & Maliyet Ayarları", lblRapidSet: "G00 Hızı (mm/dk)", lblHourlyCost: "Saatlik Ücret ($/sa)",
+                lblAnalysisResults: "Analiz Sonuçları", lblTime: "Tahmini İşleme Süresi", lblCost: "Tahmini Üretim Maliyeti", lblLines: "Toplam Satır (Blok)",
+                lblCutDist: "Kesim (G01/02/03)", lblRapidDist: "Gezinme (G00)", lblBoundsXY: "X-Y Sınırları (Min / Max)", lblBoundsZ: "Maks. Dalış (Z Derinliği)",
                 lblCanvasTitle: "Takım Yolu Düzlemi (X-Y)", toolPanZoom: "Fare ile sürükle (Pan) & Tekerlek ile yakınlaş (Zoom)",
                 ttPanZoom: "Kanvas üzerinde farenizin sol tuşuna basılı tutarak kaydırabilir, tekerleği kullanarak detaylara yakınlaşabilirsiniz.",
                 legG0: "G00 (Boşta)", legG1: "G01 (Lineer)", legG2: "G02/G03 (Dairesel)",
-                lblTimeline: "Simülasyon İlerlemesi", lblTools: "Aktif Takım: T1", btnAIAnalyze: "Takım Yolunu Yorumla",
-                aiWelcome: "Merhaba! G-Code verinizi analiz edip zaman ve takım yolu optimizasyonu konusunda mühendislik tavsiyeleri verebilirim.",
-                aiErr: "Lütfen önce geçerli bir G-Code analizi yapın.", aiWait: "Analiz ediliyor..."
+                lblTimeline: "Simülasyon İlerlemesi", lblTools: "Aktif Takım: T1", btnAIAnalyze: "Maliyet ve Optimizasyon Raporu Al",
+                aiWelcome: "Merhaba! G-Code verinizi analiz edip, üretim maliyeti ve takım yolu optimizasyonu konusunda mühendislik tavsiyeleri verebilirim.",
+                aiErr: "Lütfen önce geçerli bir G-Code analizi yapın.", aiWait: "Talaşlı imalat verileri analiz ediliyor..."
             },
             en: {
                 themeLight: "Light Theme", themeDark: "Dark Theme",
                 unitSI: "Unit: SI (mm)", unitImp: "Unit: Imperial (in)",
                 lblDataEntry: "G-Code Data Entry", btnUpload: "Select File", btnSample: "Load Sample", btnAnalyze: "Run Analysis & Simulation",
-                lblAnalysisResults: "Analysis Results", lblTime: "Estimated Machining Time", lblLines: "Total Blocks (Lines)",
-                lblCutDist: "Cutting Distance (G01/02/03)", lblRapidDist: "Rapid Movement (G00)", lblBoundsXY: "X-Y Boundaries (Min / Max)", lblBoundsZ: "Max Plunge (Z Depth)",
+                lblMachineSet: "Machine & Cost Settings", lblRapidSet: "G00 Speed (mm/min)", lblHourlyCost: "Hourly Rate ($/hr)",
+                lblAnalysisResults: "Analysis Results", lblTime: "Estimated Machining Time", lblCost: "Estimated Production Cost", lblLines: "Total Blocks (Lines)",
+                lblCutDist: "Cutting (G01/02/03)", lblRapidDist: "Rapid (G00)", lblBoundsXY: "X-Y Boundaries (Min/Max)", lblBoundsZ: "Max Plunge (Z Depth)",
                 lblCanvasTitle: "Toolpath Plane (X-Y)", toolPanZoom: "Drag to Pan & Scroll to Zoom",
                 ttPanZoom: "Hold left mouse button on the canvas to pan around, and use the mouse wheel to zoom in on details.",
                 legG0: "G00 (Rapid)", legG1: "G01 (Linear)", legG2: "G02/G03 (Arc)",
-                lblTimeline: "Simulation Progress", lblTools: "Active Tool: T1", btnAIAnalyze: "Analyze Toolpath",
-                aiWelcome: "Hello! I can analyze your G-Code and provide engineering advice on time and toolpath optimization.",
-                aiErr: "Please run a valid G-Code analysis first.", aiWait: "Analyzing..."
+                lblTimeline: "Simulation Progress", lblTools: "Active Tool: T1", btnAIAnalyze: "Get Cost & Optimization Report",
+                aiWelcome: "Hello! I can analyze your G-Code and provide engineering advice on production costs and toolpath optimization.",
+                aiErr: "Please run a valid G-Code analysis first.", aiWait: "Analyzing machining data..."
             }
         };
 
@@ -609,6 +613,10 @@
                     return;
                 }
                 
+                // Makine ve Maliyet Ayarlarını Çek
+                let sysRapidFeed = parseFloat(document.getElementById('rapidFeed').value) || 4000;
+                let sysHourlyRate = parseFloat(document.getElementById('hourlyRate').value) || 0;
+
                 const lines = raw.split('\n');
                 toolpaths = [];
                 let cx = 0, cy = 0, cz = 0;
@@ -617,7 +625,7 @@
                 let absoluteMode = true; 
                 let scaleFact = 1.0; 
 
-                stats = { cutDist: 0, rapidDist: 0, timeMin: 0, lines: lines.length };
+                stats = { cutDist: 0, rapidDist: 0, timeMin: 0, lines: lines.length, cost: 0 };
                 globalBounds = { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity, minZ: Infinity };
 
                 lines.forEach((line, index) => {
@@ -662,7 +670,7 @@
                                 toolpaths.push({ type: mode, x1: cx, y1: cy, x2: nx, y2: ny, z2: nz, dist: dist, idx: index });
                                 if (mode === 'G0') {
                                     stats.rapidDist += dist;
-                                    stats.timeMin += dist / 3000; 
+                                    stats.timeMin += dist / sysRapidFeed; // Özelleştirilmiş Hızlı Gezinme
                                 } else {
                                     stats.cutDist += dist;
                                     stats.timeMin += dist / (currentFeed > 0 ? currentFeed : 1000);
@@ -716,6 +724,9 @@
                     globalBounds = { minX:0, maxX:0, minY:0, maxY:0, minZ:0 };
                 }
 
+                // Toplam Maliyeti Hesapla
+                stats.cost = (stats.timeMin / 60) * sysHourlyRate;
+
                 resizeCanvas();
                 centerAndFit();
                 updateStatsUI();
@@ -759,7 +770,7 @@
             
             ctx.beginPath(); ctx.arc(originX, originY, 4, 0, Math.PI*2); ctx.fillStyle = '#f59e0b'; ctx.fill();
 
-            // ÇİZİM
+            // ÇİZİM (Renkler Doğrudan Hex Verildi)
             const drawCount = Math.floor(toolpaths.length * (currentDrawLimit / 100));
             ctx.lineJoin = 'round';
             ctx.lineCap = 'round';
@@ -774,11 +785,11 @@
                 ctx.beginPath();
                 if (p.type === 'G0') {
                     ctx.moveTo(px1, py1); ctx.lineTo(px2, py2);
-                    ctx.strokeStyle = '#ef4444';
+                    ctx.strokeStyle = '#ef4444'; // G0 Kırmızı
                     ctx.lineWidth = 1.5;
                 } else if (p.type === 'G1') {
                     ctx.moveTo(px1, py1); ctx.lineTo(px2, py2);
-                    ctx.strokeStyle = '#38bdf8';
+                    ctx.strokeStyle = '#38bdf8'; // G1 Mavi
                     ctx.lineWidth = 2.5;
                 } else if (p.type === 'G2' || p.type === 'G3') {
                     let pcx = transform.x + p.cx * transform.scale;
@@ -786,7 +797,7 @@
                     let pr = p.r * transform.scale;
                     
                     ctx.arc(pcx, pcy, pr, -p.sa, -p.ea, !p.ccw); 
-                    ctx.strokeStyle = '#10b981';
+                    ctx.strokeStyle = '#10b981'; // G2/G3 Yeşil
                     ctx.lineWidth = 2.5;
                 }
                 ctx.stroke();
@@ -845,6 +856,9 @@
             document.getElementById('statLines').innerText = stats.lines;
             document.getElementById('statCut').innerText = (stats.cutDist * multL).toFixed(2) + unitTxt;
             document.getElementById('statRapid').innerText = (stats.rapidDist * multL).toFixed(2) + unitTxt;
+            
+            // Maliyeti Yazdır
+            document.getElementById('statCost').innerText = "$" + stats.cost.toFixed(2);
 
             let bx1 = globalBounds.minX === Infinity ? 0 : (globalBounds.minX * multL).toFixed(1);
             let bx2 = globalBounds.maxX === -Infinity ? 0 : (globalBounds.maxX * multL).toFixed(1);
@@ -943,16 +957,18 @@ M30`;
                 
                 let report = "";
                 if(currentLang === 'tr') {
-                    report = `<strong>Takım Yolu Optimizasyon Raporu:</strong><br><br>`;
+                    report = `<strong>Maliyet ve Optimizasyon Raporu:</strong><br><br>`;
+                    report += `Mevcut ayarlarla bu parçanın tahmini üretim maliyeti <strong>$${stats.cost.toFixed(2)}</strong> olarak hesaplanmıştır.<br><br>`;
                     report += `Sisteminizde <strong>%${rapidRatio.toFixed(1)}</strong> oranında havada gezinme (G00) tespit ettim. `;
-                    if(rapidRatio > 30) report += `<span style="color:var(--danger)">Bu çok yüksek bir değer! CAM programınızdan güvenlik mesafesini (Z Clearance) düşürmenizi öneririm.</span><br><br>`;
-                    else report += `<span style="color:var(--success)">Bu oldukça verimli bir değer. Optimizasyon iyi görünüyor.</span><br><br>`;
+                    if(rapidRatio > 30) report += `<span style="color:var(--danger)">Bu oran oldukça verimsiz! CAM programınızdan Z güvenlik kalkışlarını minimize ederek maliyeti düşürebilirsiniz.</span><br><br>`;
+                    else report += `<span style="color:var(--success)">G00 oranınız çok iyi. Makine zamanı verimli kullanılıyor.</span><br><br>`;
                     report += `Maksimum takım dalış derinliği Z: -${zDepth.toFixed(1)} mm. Mil hızınızın bu derinliği karşılayıp karşılamadığını talaş yükü grafiğinden kontrol edin.`;
                 } else {
-                    report = `<strong>Toolpath Optimization Report:</strong><br><br>`;
+                    report = `<strong>Cost & Optimization Report:</strong><br><br>`;
+                    report += `With current settings, the estimated production cost for this part is <strong>$${stats.cost.toFixed(2)}</strong>.<br><br>`;
                     report += `I detected that <strong>${rapidRatio.toFixed(1)}%</strong> of the path is rapid movement (G00). `;
-                    if(rapidRatio > 30) report += `<span style="color:var(--danger)">This is very high! Consider reducing the Z Clearance distance in your CAM software to save time.</span><br><br>`;
-                    else report += `<span style="color:var(--success)">This is an efficient value. Optimization looks good.</span><br><br>`;
+                    if(rapidRatio > 30) report += `<span style="color:var(--danger)">This ratio is inefficient! Consider minimizing Z clearance lifts in your CAM software to lower costs.</span><br><br>`;
+                    else report += `<span style="color:var(--success)">Your G00 ratio is excellent. Machine time is utilized efficiently.</span><br><br>`;
                     report += `Maximum plunge depth is Z: -${zDepth.toFixed(1)} mm. Ensure your spindle speed and feedrate match the chip load for this depth.`;
                 }
                 appendAIMessage('bot', report);
