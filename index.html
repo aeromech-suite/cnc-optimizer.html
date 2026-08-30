@@ -112,6 +112,7 @@
             overflow-y: auto;
             flex-shrink: 0;
             transition: background-color 0.3s;
+            z-index: 10;
         }
         .sidebar-section {
             padding: 20px;
@@ -437,419 +438,442 @@
         <button class="ai-analyze-btn" id="btnAIAnalyze" onclick="analyzeGCodeContext()">Takım Yolunu Yorumla</button>
     </div>
 
+    <!-- JAVASCRIPT MOTORU (TÜM GÜVENLİK ÖNLEMLERİ ALINMIŞTIR) -->
     <script>
-        // SİSTEM DURUMLARI
-        let currentLang = 'tr';
-        let currentUnit = 'metric'; // metric (mm) | imperial (inch)
-        let isDarkTheme = true;
-        
-        // DİL SÖZLÜĞÜ
-        const dict = {
-            tr: {
-                themeLight: "Aydınlık Tema", themeDark: "Karanlık Tema",
-                unitSI: "Birim: SI (mm)", unitImp: "Birim: Imperial (in)",
-                lblDataEntry: "G-Code Veri Girişi", btnUpload: "Dosya Seç", btnSample: "Örnek Yükle", btnAnalyze: "Analiz & Simülasyonu Başlat",
-                lblAnalysisResults: "Analiz Sonuçları", lblTime: "Tahmini İşleme Süresi", lblLines: "Toplam Satır (Blok)",
-                lblCutDist: "Kesim Mesafesi (G01/02/03)", lblRapidDist: "Hızlı Gezinme (G00)", lblBoundsXY: "X-Y Sınırları (Min / Max)", lblBoundsZ: "Maks. Dalış (Z Derinliği)",
-                lblCanvasTitle: "Takım Yolu Düzlemi (X-Y)", toolPanZoom: "Fare ile sürükle (Pan) & Tekerlek ile yakınlaş (Zoom)",
-                ttPanZoom: "Kanvas üzerinde farenizin sol tuşuna basılı tutarak kaydırabilir, tekerleği kullanarak detaylara yakınlaşabilirsiniz.",
-                legG0: "G00 (Boşta)", legG1: "G01 (Lineer)", legG2: "G02/G03 (Dairesel)",
-                lblTimeline: "Simülasyon İlerlemesi", lblTools: "Aktif Takım: T1", btnAIAnalyze: "Takım Yolunu Yorumla",
-                aiWelcome: "Merhaba! G-Code verinizi analiz edip zaman ve takım yolu optimizasyonu konusunda mühendislik tavsiyeleri verebilirim.",
-                aiErr: "Lütfen önce bir G-Code analizi yapın.", aiWait: "Analiz ediliyor..."
-            },
-            en: {
-                themeLight: "Light Theme", themeDark: "Dark Theme",
-                unitSI: "Unit: SI (mm)", unitImp: "Unit: Imperial (in)",
-                lblDataEntry: "G-Code Data Entry", btnUpload: "Select File", btnSample: "Load Sample", btnAnalyze: "Run Analysis & Simulation",
-                lblAnalysisResults: "Analysis Results", lblTime: "Estimated Machining Time", lblLines: "Total Blocks (Lines)",
-                lblCutDist: "Cutting Distance (G01/02/03)", lblRapidDist: "Rapid Movement (G00)", lblBoundsXY: "X-Y Boundaries (Min / Max)", lblBoundsZ: "Max Plunge (Z Depth)",
-                lblCanvasTitle: "Toolpath Plane (X-Y)", toolPanZoom: "Drag to Pan & Scroll to Zoom",
-                ttPanZoom: "Hold left mouse button on the canvas to pan around, and use the mouse wheel to zoom in on details.",
-                legG0: "G00 (Rapid)", legG1: "G01 (Linear)", legG2: "G02/G03 (Arc)",
-                lblTimeline: "Simulation Progress", lblTools: "Active Tool: T1", btnAIAnalyze: "Analyze Toolpath",
-                aiWelcome: "Hello! I can analyze your G-Code and provide engineering advice on time and toolpath optimization.",
-                aiErr: "Please run a G-Code analysis first.", aiWait: "Analyzing..."
-            }
-        };
+        // DOM Tamamen Yüklendiğinde Başlat
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("AeroMech CNC Optimizer Init...");
 
-        // ARAYÜZ YÖNETİMİ
-        function toggleLang() {
-            currentLang = currentLang === 'tr' ? 'en' : 'tr';
-            document.getElementById('langBtn').innerText = currentLang === 'tr' ? 'TR' : 'EN';
-            applyTranslations();
-            if(toolpaths.length > 0) updateStatsUI();
-        }
-        function toggleTheme() {
-            isDarkTheme = !isDarkTheme;
-            if(isDarkTheme) document.body.classList.remove('light-theme');
-            else document.body.classList.add('light-theme');
-            document.getElementById('themeBtn').innerText = dict[currentLang][isDarkTheme ? 'themeLight' : 'themeDark'];
-            drawCanvas();
-        }
-        function toggleUnit() {
-            currentUnit = currentUnit === 'metric' ? 'imperial' : 'metric';
-            document.getElementById('unitBtn').innerText = dict[currentLang][currentUnit === 'metric' ? 'unitSI' : 'unitImp'];
-            document.getElementById('unitBtn').classList.toggle('active', currentUnit==='metric');
-            if(toolpaths.length > 0) updateStatsUI();
-        }
-        function applyTranslations() {
-            const t = dict[currentLang];
-            Object.keys(t).forEach(key => {
-                const el = document.getElementById(key);
-                if(el) el.innerHTML = t[key];
-            });
-            document.getElementById('gcodeInput').placeholder = currentLang === 'tr' ? "G-Code buraya yapıştırın veya dosya yükleyin..." : "Paste G-Code here or upload a file...";
-            document.getElementById('themeBtn').innerText = t[isDarkTheme ? 'themeLight' : 'themeDark'];
-            document.getElementById('unitBtn').innerText = t[currentUnit === 'metric' ? 'unitSI' : 'unitImp'];
+            // KÜRESEL (GLOBAL) DEĞİŞKENLER
+            let currentLang = 'tr';
+            let currentUnit = 'metric';
+            let isDarkTheme = true;
             
-            const msgs = document.getElementById('aiMessages');
-            if(msgs.children.length === 1 && msgs.children[0].classList.contains('msg-bot')) {
-                msgs.children[0].innerHTML = t.aiWelcome;
-            }
-        }
-
-        // CANVAS VE PAN/ZOOM MOTORU
-        const canvas = document.getElementById('toolpathCanvas');
-        const ctx = canvas.getContext('2d');
-        const wrapper = document.getElementById('canvasWrapper');
-        
-        let toolpaths = []; 
-        let globalBounds = { minX: 0, maxX: 0, minY: 0, maxY: 0, minZ: 0 };
-        let stats = { cutDist: 0, rapidDist: 0, timeMin: 0, lines: 0 };
-        
-        let transform = { x: 0, y: 0, scale: 1 };
-        let isDragging = false;
-        let dragStart = { x: 0, y: 0 };
-        let currentDrawLimit = 100; // 0 to 100%
-        let animationFrameId = null;
-        let isPlaying = false;
-
-        function resizeCanvas() {
-            canvas.width = wrapper.clientWidth;
-            canvas.height = wrapper.clientHeight;
-            drawCanvas();
-        }
-        window.addEventListener('resize', resizeCanvas);
-
-        // PAN (SÜRÜKLEME)
-        wrapper.addEventListener('mousedown', e => {
-            isDragging = true;
-            dragStart = { x: e.clientX - transform.x, y: e.clientY - transform.y };
-        });
-        window.addEventListener('mouseup', () => isDragging = false);
-        window.addEventListener('mousemove', e => {
-            if (!isDragging) return;
-            transform.x = e.clientX - dragStart.x;
-            transform.y = e.clientY - dragStart.y;
-            drawCanvas();
-        });
-
-        // ZOOM (TEKERLEK)
-        wrapper.addEventListener('wheel', e => {
-            e.preventDefault();
-            const zoomSensitivity = 0.1;
-            const delta = e.deltaY > 0 ? -1 : 1;
-            const scaleAmount = 1 + (delta * zoomSensitivity);
-            
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
-
-            transform.x = mouseX - (mouseX - transform.x) * scaleAmount;
-            transform.y = mouseY - (mouseY - transform.y) * scaleAmount;
-            transform.scale *= scaleAmount;
-
-            drawCanvas();
-        }, { passive: false });
-
-        function centerAndFit() {
-            const padding = 50;
-            const w = globalBounds.maxX - globalBounds.minX;
-            const h = globalBounds.maxY - globalBounds.minY;
-            if (w === 0 || h === 0) return;
-
-            const scaleX = (canvas.width - padding * 2) / w;
-            const scaleY = (canvas.height - padding * 2) / h;
-            transform.scale = Math.min(scaleX, scaleY);
-
-            // G-code koordinatlarını canvas ortasına oturt
-            const cx = (globalBounds.maxX + globalBounds.minX) / 2;
-            const cy = (globalBounds.maxY + globalBounds.minY) / 2;
-
-            transform.x = canvas.width / 2 - cx * transform.scale;
-            // G-code Y ekseni yukarı pozitiftir, Canvas Y ekseni aşağı pozitiftir. Ters çeviriyoruz.
-            transform.y = canvas.height / 2 + cy * transform.scale; 
-        }
-
-        // G-CODE AYRIŞTIRICI (PARSER) - G0, G1, G2, G3 Destekli
-        function startAnalysis() {
-            const raw = document.getElementById('gcodeInput').value;
-            const lines = raw.split('\n');
-            
-            toolpaths = [];
-            let cx = 0, cy = 0, cz = 0;
-            let currentFeed = 1000; 
-            let mode = null; 
-            let absoluteMode = true; // G90
-            let scaleFact = 1.0; // G20(inch)=25.4, G21(mm)=1.0
-
-            stats = { cutDist: 0, rapidDist: 0, timeMin: 0, lines: lines.length };
-            globalBounds = { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity, minZ: Infinity };
-
-            lines.forEach((line, index) => {
-                let text = line.split(';')[0].split('(')[0].trim().toUpperCase();
-                if (!text) return;
-
-                if (text.includes('G20')) scaleFact = 25.4; // Koda inç dediysek mm'ye çevirip tutacağız.
-                if (text.includes('G21')) scaleFact = 1.0;
-                if (text.includes('G90')) absoluteMode = true;
-                if (text.includes('G91')) absoluteMode = false;
-
-                let mMatch = text.match(/G(0[0-3]?|[1-3])/);
-                if (mMatch) {
-                    let code = parseInt(mMatch[1]);
-                    if(code === 0) mode = 'G0';
-                    else if(code === 1) mode = 'G1';
-                    else if(code === 2) mode = 'G2';
-                    else if(code === 3) mode = 'G3';
+            const dict = {
+                tr: {
+                    themeLight: "Aydınlık Tema", themeDark: "Karanlık Tema",
+                    unitSI: "Birim: SI (mm)", unitImp: "Birim: Imperial (in)",
+                    lblDataEntry: "G-Code Veri Girişi", btnUpload: "Dosya Seç", btnSample: "Örnek Yükle", btnAnalyze: "Analiz & Simülasyonu Başlat",
+                    lblAnalysisResults: "Analiz Sonuçları", lblTime: "Tahmini İşleme Süresi", lblLines: "Toplam Satır (Blok)",
+                    lblCutDist: "Kesim Mesafesi (G01/02/03)", lblRapidDist: "Hızlı Gezinme (G00)", lblBoundsXY: "X-Y Sınırları (Min / Max)", lblBoundsZ: "Maks. Dalış (Z Derinliği)",
+                    lblCanvasTitle: "Takım Yolu Düzlemi (X-Y)", toolPanZoom: "Fare ile sürükle (Pan) & Tekerlek ile yakınlaş (Zoom)",
+                    ttPanZoom: "Kanvas üzerinde farenizin sol tuşuna basılı tutarak kaydırabilir, tekerleği kullanarak detaylara yakınlaşabilirsiniz.",
+                    legG0: "G00 (Boşta)", legG1: "G01 (Lineer)", legG2: "G02/G03 (Dairesel)",
+                    lblTimeline: "Simülasyon İlerlemesi", lblTools: "Aktif Takım: T1", btnAIAnalyze: "Takım Yolunu Yorumla",
+                    aiWelcome: "Merhaba! G-Code verinizi analiz edip zaman ve takım yolu optimizasyonu konusunda mühendislik tavsiyeleri verebilirim.",
+                    aiErr: "Lütfen önce geçerli bir G-Code analizi yapın.", aiWait: "Analiz ediliyor..."
+                },
+                en: {
+                    themeLight: "Light Theme", themeDark: "Dark Theme",
+                    unitSI: "Unit: SI (mm)", unitImp: "Unit: Imperial (in)",
+                    lblDataEntry: "G-Code Data Entry", btnUpload: "Select File", btnSample: "Load Sample", btnAnalyze: "Run Analysis & Simulation",
+                    lblAnalysisResults: "Analysis Results", lblTime: "Estimated Machining Time", lblLines: "Total Blocks (Lines)",
+                    lblCutDist: "Cutting Distance (G01/02/03)", lblRapidDist: "Rapid Movement (G00)", lblBoundsXY: "X-Y Boundaries (Min / Max)", lblBoundsZ: "Max Plunge (Z Depth)",
+                    lblCanvasTitle: "Toolpath Plane (X-Y)", toolPanZoom: "Drag to Pan & Scroll to Zoom",
+                    ttPanZoom: "Hold left mouse button on the canvas to pan around, and use the mouse wheel to zoom in on details.",
+                    legG0: "G00 (Rapid)", legG1: "G01 (Linear)", legG2: "G02/G03 (Arc)",
+                    lblTimeline: "Simulation Progress", lblTools: "Active Tool: T1", btnAIAnalyze: "Analyze Toolpath",
+                    aiWelcome: "Hello! I can analyze your G-Code and provide engineering advice on time and toolpath optimization.",
+                    aiErr: "Please run a valid G-Code analysis first.", aiWait: "Analyzing..."
                 }
+            };
 
-                let xM = text.match(/X(-?[\d.]+)/);
-                let yM = text.match(/Y(-?[\d.]+)/);
-                let zM = text.match(/Z(-?[\d.]+)/);
-                let iM = text.match(/I(-?[\d.]+)/);
-                let jM = text.match(/J(-?[\d.]+)/);
-                let fM = text.match(/F([\d.]+)/);
+            // KÜRESEL FONKSİYON ATAMALARI (HTML'deki onclick'lerin çalışması için şarttır)
+            window.toggleLang = function() {
+                currentLang = currentLang === 'tr' ? 'en' : 'tr';
+                document.getElementById('langBtn').innerText = currentLang === 'tr' ? 'TR' : 'EN';
+                applyTranslations();
+                if(toolpaths.length > 0) updateStatsUI();
+            };
 
-                if (fM) currentFeed = parseFloat(fM[1]) * scaleFact;
+            window.toggleTheme = function() {
+                isDarkTheme = !isDarkTheme;
+                if(isDarkTheme) document.body.classList.remove('light-theme');
+                else document.body.classList.add('light-theme');
+                document.getElementById('themeBtn').innerText = dict[currentLang][isDarkTheme ? 'themeLight' : 'themeDark'];
+                drawCanvas();
+            };
 
-                if (xM || yM || zM || iM || jM) {
-                    let nx = xM ? parseFloat(xM[1]) * scaleFact : (absoluteMode ? cx : 0);
-                    let ny = yM ? parseFloat(yM[1]) * scaleFact : (absoluteMode ? cy : 0);
-                    let nz = zM ? parseFloat(zM[1]) * scaleFact : (absoluteMode ? cz : 0);
+            window.toggleUnit = function() {
+                currentUnit = currentUnit === 'metric' ? 'imperial' : 'metric';
+                document.getElementById('unitBtn').innerText = dict[currentLang][currentUnit === 'metric' ? 'unitSI' : 'unitImp'];
+                document.getElementById('unitBtn').classList.toggle('active', currentUnit==='metric');
+                if(toolpaths.length > 0) updateStatsUI();
+            };
+
+            function applyTranslations() {
+                const t = dict[currentLang];
+                Object.keys(t).forEach(key => {
+                    const el = document.getElementById(key);
+                    if(el) el.innerHTML = t[key];
+                });
+                document.getElementById('gcodeInput').placeholder = currentLang === 'tr' ? "G-Code buraya yapıştırın veya dosya yükleyin..." : "Paste G-Code here or upload a file...";
+                document.getElementById('themeBtn').innerText = t[isDarkTheme ? 'themeLight' : 'themeDark'];
+                document.getElementById('unitBtn').innerText = t[currentUnit === 'metric' ? 'unitSI' : 'unitImp'];
+                
+                const msgs = document.getElementById('aiMessages');
+                if(msgs.children.length === 1 && msgs.children[0].classList.contains('msg-bot')) {
+                    msgs.children[0].innerHTML = t.aiWelcome;
+                }
+            }
+
+            // CANVAS VE GRAFİK YÖNETİMİ
+            const canvas = document.getElementById('toolpathCanvas');
+            const ctx = canvas.getContext('2d');
+            const wrapper = document.getElementById('canvasWrapper');
+            
+            let toolpaths = []; 
+            let globalBounds = { minX: 0, maxX: 0, minY: 0, maxY: 0, minZ: 0 };
+            let stats = { cutDist: 0, rapidDist: 0, timeMin: 0, lines: 0 };
+            
+            let transform = { x: 0, y: 0, scale: 1 };
+            let isDragging = false;
+            let dragStart = { x: 0, y: 0 };
+            let currentDrawLimit = 100; 
+            let animationFrameId = null;
+            let isPlaying = false;
+
+            function resizeCanvas() {
+                if(!wrapper) return;
+                let w = wrapper.clientWidth;
+                let h = wrapper.clientHeight;
+                if(w === 0) w = 800; // Güvenlik ağı
+                if(h === 0) h = 600;
+                canvas.width = w;
+                canvas.height = h;
+                if (toolpaths.length > 0) {
+                    centerAndFit();
+                    drawCanvas();
+                }
+            }
+            window.addEventListener('resize', resizeCanvas);
+
+            wrapper.addEventListener('mousedown', e => {
+                isDragging = true;
+                dragStart = { x: e.clientX - transform.x, y: e.clientY - transform.y };
+            });
+            window.addEventListener('mouseup', () => isDragging = false);
+            window.addEventListener('mousemove', e => {
+                if (!isDragging) return;
+                transform.x = e.clientX - dragStart.x;
+                transform.y = e.clientY - dragStart.y;
+                drawCanvas();
+            });
+
+            wrapper.addEventListener('wheel', e => {
+                e.preventDefault();
+                const zoomSensitivity = 0.1;
+                const delta = e.deltaY > 0 ? -1 : 1;
+                const scaleAmount = 1 + (delta * zoomSensitivity);
+                
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+
+                transform.x = mouseX - (mouseX - transform.x) * scaleAmount;
+                transform.y = mouseY - (mouseY - transform.y) * scaleAmount;
+                transform.scale *= scaleAmount;
+
+                drawCanvas();
+            }, { passive: false });
+
+            function centerAndFit() {
+                let w = globalBounds.maxX - globalBounds.minX;
+                let h = globalBounds.maxY - globalBounds.minY;
+                
+                // Güvenlik: G-Code sadece tek bir noktaysa çökmesini engeller
+                if (w <= 0.001) w = 10; 
+                if (h <= 0.001) h = 10;
+
+                const padding = 60;
+                const scaleX = (canvas.width - padding * 2) / w;
+                const scaleY = (canvas.height - padding * 2) / h;
+                
+                transform.scale = Math.min(scaleX, scaleY);
+                if (transform.scale <= 0 || !isFinite(transform.scale)) transform.scale = 1;
+
+                const cx = (globalBounds.maxX + globalBounds.minX) / 2;
+                const cy = (globalBounds.maxY + globalBounds.minY) / 2;
+
+                transform.x = (canvas.width / 2) - (cx * transform.scale);
+                transform.y = (canvas.height / 2) + (cy * transform.scale); 
+            }
+
+            // G-CODE MOTORU (Hata Yakalamalı)
+            window.startAnalysis = function() {
+                try {
+                    const raw = document.getElementById('gcodeInput').value.trim();
+                    if (!raw) {
+                        alert(currentLang === 'tr' ? "Lütfen analiz edilecek bir G-Code girin." : "Please enter G-Code to analyze.");
+                        return;
+                    }
                     
-                    if(!absoluteMode) { nx += cx; ny += cy; nz += cz; }
+                    const lines = raw.split('\n');
+                    toolpaths = [];
+                    let cx = 0, cy = 0, cz = 0;
+                    let currentFeed = 1000; 
+                    let mode = null; 
+                    let absoluteMode = true; 
+                    let scaleFact = 1.0; 
 
-                    if (mode === 'G0' || mode === 'G1') {
-                        let dx = nx - cx; let dy = ny - cy; let dz = nz - cz;
-                        let dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
-                        
-                        if(dist > 0.001) {
-                            toolpaths.push({ type: mode, x1: cx, y1: cy, x2: nx, y2: ny, z2: nz, dist: dist, idx: index });
-                            if (mode === 'G0') {
-                                stats.rapidDist += dist;
-                                stats.timeMin += dist / 3000; 
-                            } else {
-                                stats.cutDist += dist;
-                                stats.timeMin += dist / (currentFeed > 0 ? currentFeed : 1000);
+                    stats = { cutDist: 0, rapidDist: 0, timeMin: 0, lines: lines.length };
+                    globalBounds = { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity, minZ: Infinity };
+
+                    lines.forEach((line, index) => {
+                        let text = line.split(';')[0].split('(')[0].trim().toUpperCase();
+                        if (!text) return;
+
+                        if (text.includes('G20')) scaleFact = 25.4; 
+                        if (text.includes('G21')) scaleFact = 1.0;
+                        if (text.includes('G90')) absoluteMode = true;
+                        if (text.includes('G91')) absoluteMode = false;
+
+                        let mMatch = text.match(/G(0[0-3]?|[1-3])/);
+                        if (mMatch) {
+                            let code = parseInt(mMatch[1]);
+                            if(code === 0) mode = 'G0';
+                            else if(code === 1) mode = 'G1';
+                            else if(code === 2) mode = 'G2';
+                            else if(code === 3) mode = 'G3';
+                        }
+
+                        let xM = text.match(/X(-?[\d.]+)/);
+                        let yM = text.match(/Y(-?[\d.]+)/);
+                        let zM = text.match(/Z(-?[\d.]+)/);
+                        let iM = text.match(/I(-?[\d.]+)/);
+                        let jM = text.match(/J(-?[\d.]+)/);
+                        let fM = text.match(/F([\d.]+)/);
+
+                        if (fM) currentFeed = parseFloat(fM[1]) * scaleFact;
+
+                        if (xM || yM || zM || iM || jM) {
+                            let nx = xM ? parseFloat(xM[1]) * scaleFact : (absoluteMode ? cx : 0);
+                            let ny = yM ? parseFloat(yM[1]) * scaleFact : (absoluteMode ? cy : 0);
+                            let nz = zM ? parseFloat(zM[1]) * scaleFact : (absoluteMode ? cz : 0);
+                            
+                            if(!absoluteMode) { nx += cx; ny += cy; nz += cz; }
+
+                            if (mode === 'G0' || mode === 'G1') {
+                                let dx = nx - cx; let dy = ny - cy; let dz = nz - cz;
+                                let dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+                                
+                                if(dist > 0.001) {
+                                    toolpaths.push({ type: mode, x1: cx, y1: cy, x2: nx, y2: ny, z2: nz, dist: dist, idx: index });
+                                    if (mode === 'G0') {
+                                        stats.rapidDist += dist;
+                                        stats.timeMin += dist / 3000; 
+                                    } else {
+                                        stats.cutDist += dist;
+                                        stats.timeMin += dist / (currentFeed > 0 ? currentFeed : 1000);
+                                    }
+                                }
+                            } else if (mode === 'G2' || mode === 'G3') {
+                                let I = iM ? parseFloat(iM[1]) * scaleFact : 0;
+                                let J = jM ? parseFloat(jM[1]) * scaleFact : 0;
+                                let centerX = cx + I;
+                                let centerY = cy + J;
+                                let radius = Math.sqrt(I*I + J*J);
+                                
+                                let startAngle = Math.atan2(cy - centerY, cx - centerX);
+                                let endAngle = Math.atan2(ny - centerY, nx - centerX);
+                                
+                                let sweep = endAngle - startAngle;
+                                if (mode === 'G2' && sweep > 0) sweep -= 2 * Math.PI; 
+                                if (mode === 'G3' && sweep < 0) sweep += 2 * Math.PI; 
+                                
+                                let arcDist = Math.abs(sweep) * radius;
+                                
+                                if(arcDist > 0.001) {
+                                    toolpaths.push({ 
+                                        type: mode, x1: cx, y1: cy, x2: nx, y2: ny, z2: nz,
+                                        cx: centerX, cy: centerY, r: radius, sa: startAngle, ea: endAngle, ccw: (mode==='G3'),
+                                        dist: arcDist, idx: index 
+                                    });
+                                    stats.cutDist += arcDist;
+                                    stats.timeMin += arcDist / (currentFeed > 0 ? currentFeed : 1000);
+                                }
+                                
+                                let exX1 = centerX - radius, exX2 = centerX + radius;
+                                let exY1 = centerY - radius, exY2 = centerY + radius;
+                                if(exX1 < globalBounds.minX) globalBounds.minX = exX1;
+                                if(exX2 > globalBounds.maxX) globalBounds.maxX = exX2;
+                                if(exY1 < globalBounds.minY) globalBounds.minY = exY1;
+                                if(exY2 > globalBounds.maxY) globalBounds.maxY = exY2;
                             }
+
+                            if (nx < globalBounds.minX) globalBounds.minX = nx;
+                            if (nx > globalBounds.maxX) globalBounds.maxX = nx;
+                            if (ny < globalBounds.minY) globalBounds.minY = ny;
+                            if (ny > globalBounds.maxY) globalBounds.maxY = ny;
+                            if (nz < globalBounds.minZ) globalBounds.minZ = nz;
+
+                            cx = nx; cy = ny; cz = nz;
                         }
-                    } else if (mode === 'G2' || mode === 'G3') {
-                        // Dairesel interpolasyon
-                        let I = iM ? parseFloat(iM[1]) * scaleFact : 0;
-                        let J = jM ? parseFloat(jM[1]) * scaleFact : 0;
-                        let centerX = cx + I;
-                        let centerY = cy + J;
-                        let radius = Math.sqrt(I*I + J*J);
-                        
-                        let startAngle = Math.atan2(cy - centerY, cx - centerX);
-                        let endAngle = Math.atan2(ny - centerY, nx - centerX);
-                        
-                        // Açı farkı
-                        let sweep = endAngle - startAngle;
-                        if (mode === 'G2' && sweep > 0) sweep -= 2 * Math.PI; // Saat yönü (CW)
-                        if (mode === 'G3' && sweep < 0) sweep += 2 * Math.PI; // Saat yönü tersi (CCW)
-                        
-                        let arcDist = Math.abs(sweep) * radius;
-                        
-                        if(arcDist > 0.001) {
-                            toolpaths.push({ 
-                                type: mode, x1: cx, y1: cy, x2: nx, y2: ny, z2: nz,
-                                cx: centerX, cy: centerY, r: radius, sa: startAngle, ea: endAngle, ccw: (mode==='G3'),
-                                dist: arcDist, idx: index 
-                            });
-                            stats.cutDist += arcDist;
-                            stats.timeMin += arcDist / (currentFeed > 0 ? currentFeed : 1000);
-                        }
-                        
-                        // Arc Bounding Box yaklaşığı (Dairenin ekstrem noktaları)
-                        let exX1 = centerX - radius, exX2 = centerX + radius;
-                        let exY1 = centerY - radius, exY2 = centerY + radius;
-                        if(exX1 < globalBounds.minX) globalBounds.minX = exX1;
-                        if(exX2 > globalBounds.maxX) globalBounds.maxX = exX2;
-                        if(exY1 < globalBounds.minY) globalBounds.minY = exY1;
-                        if(exY2 > globalBounds.maxY) globalBounds.maxY = exY2;
+                    });
+
+                    if (globalBounds.minX === Infinity) {
+                        globalBounds = { minX:0, maxX:0, minY:0, maxY:0, minZ:0 };
                     }
 
-                    // Genel Bounding Box
-                    if (nx < globalBounds.minX) globalBounds.minX = nx;
-                    if (nx > globalBounds.maxX) globalBounds.maxX = nx;
-                    if (ny < globalBounds.minY) globalBounds.minY = ny;
-                    if (ny > globalBounds.maxY) globalBounds.maxY = ny;
-                    if (nz < globalBounds.minZ) globalBounds.minZ = nz;
-
-                    cx = nx; cy = ny; cz = nz;
-                }
-            });
-
-            if (globalBounds.minX === Infinity) {
-                globalBounds = { minX:0, maxX:0, minY:0, maxY:0, minZ:0 };
-            }
-
-            resizeCanvas();
-            centerAndFit();
-            updateStatsUI();
-            currentDrawLimit = 100;
-            document.getElementById('timeSlider').value = 100;
-            document.getElementById('lblProgress').innerText = "100";
-            drawCanvas();
-        }
-
-        // KANVAS ÇİZİM (RENDER) MOTORU
-        function drawCanvas() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // GRID ÇİZİMİ (Ölçeklenmiş)
-            ctx.beginPath();
-            ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--grid-color').trim();
-            ctx.lineWidth = 1;
-            const gridSize = 50 * transform.scale;
-            if(gridSize > 5) {
-                const offsetX = transform.x % gridSize;
-                const offsetY = transform.y % gridSize;
-                for(let x = offsetX; x < canvas.width; x += gridSize) { ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); }
-                for(let y = offsetY; y < canvas.height; y += gridSize) { ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); }
-                ctx.stroke();
-            }
-
-            if (toolpaths.length === 0) return;
-
-            // X VE Y EKSENLERİ VE ORİJİN
-            ctx.beginPath();
-            ctx.strokeStyle = '#64748b'; ctx.lineWidth = 1.5;
-            let originX = transform.x; let originY = transform.y;
-            ctx.moveTo(0, originY); ctx.lineTo(canvas.width, originY);
-            ctx.moveTo(originX, 0); ctx.lineTo(originX, canvas.height);
-            ctx.stroke();
-            
-            ctx.beginPath(); ctx.arc(originX, originY, 4, 0, Math.PI*2); ctx.fillStyle = 'var(--warning)'; ctx.fill();
-
-            // TAKIM YOLLARINI ÇİZ
-            const drawCount = Math.floor(toolpaths.length * (currentDrawLimit / 100));
-            
-            ctx.lineJoin = 'round';
-            ctx.lineCap = 'round';
-
-            for(let i=0; i<drawCount; i++) {
-                let p = toolpaths[i];
-                let px1 = transform.x + p.x1 * transform.scale;
-                let py1 = transform.y - p.y1 * transform.scale; // Y'yi ters çeviriyoruz
-                let px2 = transform.x + p.x2 * transform.scale;
-                let py2 = transform.y - p.y2 * transform.scale;
-
-                ctx.beginPath();
-                if (p.type === 'G0') {
-                    ctx.moveTo(px1, py1); ctx.lineTo(px2, py2);
-                    ctx.strokeStyle = 'var(--g0-color)';
-                    ctx.lineWidth = 1.5;
-                } else if (p.type === 'G1') {
-                    ctx.moveTo(px1, py1); ctx.lineTo(px2, py2);
-                    ctx.strokeStyle = 'var(--g1-color)';
-                    ctx.lineWidth = 2.5;
-                } else if (p.type === 'G2' || p.type === 'G3') {
-                    let pcx = transform.x + p.cx * transform.scale;
-                    let pcy = transform.y - p.cy * transform.scale;
-                    let pr = p.r * transform.scale;
+                    resizeCanvas();
+                    centerAndFit();
+                    updateStatsUI();
+                    currentDrawLimit = 100;
+                    document.getElementById('timeSlider').value = 100;
+                    document.getElementById('lblProgress').innerText = "100";
+                    drawCanvas();
                     
-                    // Canvas Y ters olduğu için açı yönleri de ters döner.
-                    // Orijinal veride ccw=(G3) ise, canvas'ta saat yönü (false) çizilmelidir.
-                    ctx.arc(pcx, pcy, pr, -p.sa, -p.ea, p.ccw); 
-                    ctx.strokeStyle = 'var(--g2-color)';
-                    ctx.lineWidth = 2.5;
+                } catch(error) {
+                    console.error("G-Code Hatası:", error);
+                    alert(currentLang === 'tr' ? "Analiz sırasında bir hata oluştu. G-Code dosyanızın formatı bozuk olabilir." : "An error occurred. Your G-Code formatting might be invalid.");
                 }
-                ctx.stroke();
+            };
 
-                // Çizim kafasını göster
-                if (i === drawCount - 1 && currentDrawLimit < 100) {
-                    ctx.beginPath();
-                    ctx.arc(px2, py2, 6, 0, Math.PI*2);
-                    ctx.fillStyle = '#fff';
-                    ctx.fill();
-                    ctx.strokeStyle = '#000';
-                    ctx.lineWidth = 2;
+            function drawCanvas() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // GRID ÇİZİMİ
+                ctx.beginPath();
+                ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--grid-color').trim();
+                ctx.lineWidth = 1;
+                const gridSize = 50 * transform.scale;
+                if(gridSize > 5) {
+                    const offsetX = transform.x % gridSize;
+                    const offsetY = transform.y % gridSize;
+                    for(let x = offsetX; x < canvas.width; x += gridSize) { ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); }
+                    for(let y = offsetY; y < canvas.height; y += gridSize) { ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); }
                     ctx.stroke();
                 }
+
+                if (toolpaths.length === 0) return;
+
+                // EKSENLER
+                ctx.beginPath();
+                ctx.strokeStyle = '#64748b'; ctx.lineWidth = 1.5;
+                let originX = transform.x; let originY = transform.y;
+                ctx.moveTo(0, originY); ctx.lineTo(canvas.width, originY);
+                ctx.moveTo(originX, 0); ctx.lineTo(originX, canvas.height);
+                ctx.stroke();
+                
+                ctx.beginPath(); ctx.arc(originX, originY, 4, 0, Math.PI*2); ctx.fillStyle = 'var(--warning)'; ctx.fill();
+
+                // TAKIM YOLLARI
+                const drawCount = Math.floor(toolpaths.length * (currentDrawLimit / 100));
+                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round';
+
+                for(let i=0; i<drawCount; i++) {
+                    let p = toolpaths[i];
+                    let px1 = transform.x + p.x1 * transform.scale;
+                    let py1 = transform.y - p.y1 * transform.scale; 
+                    let px2 = transform.x + p.x2 * transform.scale;
+                    let py2 = transform.y - p.y2 * transform.scale;
+
+                    ctx.beginPath();
+                    if (p.type === 'G0') {
+                        ctx.moveTo(px1, py1); ctx.lineTo(px2, py2);
+                        ctx.strokeStyle = 'var(--g0-color)';
+                        ctx.lineWidth = 1.5;
+                    } else if (p.type === 'G1') {
+                        ctx.moveTo(px1, py1); ctx.lineTo(px2, py2);
+                        ctx.strokeStyle = 'var(--g1-color)';
+                        ctx.lineWidth = 2.5;
+                    } else if (p.type === 'G2' || p.type === 'G3') {
+                        let pcx = transform.x + p.cx * transform.scale;
+                        let pcy = transform.y - p.cy * transform.scale;
+                        let pr = p.r * transform.scale;
+                        
+                        ctx.arc(pcx, pcy, pr, -p.sa, -p.ea, !p.ccw); 
+                        ctx.strokeStyle = 'var(--g2-color)';
+                        ctx.lineWidth = 2.5;
+                    }
+                    ctx.stroke();
+
+                    // Simülasyon Kafa Göstergesi
+                    if (i === drawCount - 1 && currentDrawLimit < 100) {
+                        ctx.beginPath();
+                        ctx.arc(px2, py2, 6, 0, Math.PI*2);
+                        ctx.fillStyle = '#fff';
+                        ctx.fill();
+                        ctx.strokeStyle = '#000';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                    }
+                }
             }
-        }
 
-        // SİMÜLASYON ANİMASYONU
-        function updateSimulationFromSlider() {
-            currentDrawLimit = parseFloat(document.getElementById('timeSlider').value);
-            document.getElementById('lblProgress').innerText = currentDrawLimit;
-            drawCanvas();
-        }
-        function togglePlay() {
-            if(toolpaths.length === 0) return;
-            isPlaying = !isPlaying;
-            const icon = document.getElementById('playIcon');
-            if(isPlaying) {
-                icon.innerHTML = `<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>`;
-                if(currentDrawLimit >= 100) currentDrawLimit = 0;
-                animatePlay();
-            } else {
-                icon.innerHTML = `<polygon points="5 3 19 12 5 21 5 3"></polygon>`;
-                cancelAnimationFrame(animationFrameId);
+            // SİMÜLASYON ANİMASYONU
+            window.updateSimulationFromSlider = function() {
+                currentDrawLimit = parseFloat(document.getElementById('timeSlider').value);
+                document.getElementById('lblProgress').innerText = currentDrawLimit;
+                drawCanvas();
+            };
+
+            window.togglePlay = function() {
+                if(toolpaths.length === 0) return;
+                isPlaying = !isPlaying;
+                const icon = document.getElementById('playIcon');
+                if(isPlaying) {
+                    icon.innerHTML = `<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>`;
+                    if(currentDrawLimit >= 100) currentDrawLimit = 0;
+                    animatePlay();
+                } else {
+                    icon.innerHTML = `<polygon points="5 3 19 12 5 21 5 3"></polygon>`;
+                    cancelAnimationFrame(animationFrameId);
+                }
+            };
+
+            function animatePlay() {
+                if(!isPlaying) return;
+                currentDrawLimit += 0.5; 
+                if(currentDrawLimit > 100) {
+                    currentDrawLimit = 100;
+                    window.togglePlay();
+                }
+                document.getElementById('timeSlider').value = currentDrawLimit;
+                document.getElementById('lblProgress').innerText = Math.floor(currentDrawLimit);
+                drawCanvas();
+                if(isPlaying) animationFrameId = requestAnimationFrame(animatePlay);
             }
-        }
-        function animatePlay() {
-            if(!isPlaying) return;
-            currentDrawLimit += 0.5; // Hız
-            if(currentDrawLimit > 100) {
-                currentDrawLimit = 100;
-                togglePlay();
+
+            // İSTATİSTİKLER (GÜVENLİ ÇIKTILAR)
+            function updateStatsUI() {
+                let multL = currentUnit === 'imperial' ? 0.0393701 : 1;
+                let unitTxt = currentUnit === 'imperial' ? ' in' : ' mm';
+                
+                document.getElementById('statLines').innerText = stats.lines;
+                document.getElementById('statCut').innerText = (stats.cutDist * multL).toFixed(2) + unitTxt;
+                document.getElementById('statRapid').innerText = (stats.rapidDist * multL).toFixed(2) + unitTxt;
+
+                let bx1 = globalBounds.minX === Infinity ? 0 : (globalBounds.minX * multL).toFixed(1);
+                let bx2 = globalBounds.maxX === -Infinity ? 0 : (globalBounds.maxX * multL).toFixed(1);
+                let by1 = globalBounds.minY === Infinity ? 0 : (globalBounds.minY * multL).toFixed(1);
+                let by2 = globalBounds.maxY === -Infinity ? 0 : (globalBounds.maxY * multL).toFixed(1);
+                let bz = globalBounds.minZ === Infinity ? 0 : (globalBounds.minZ * multL).toFixed(2);
+                
+                document.getElementById('statBoundsXY').innerHTML = `X: ${bx1} / ${bx2}<br>Y: ${by1} / ${by2}`;
+                document.getElementById('statBoundsZ').innerText = bz + unitTxt;
+
+                let totalSec = Math.round(stats.timeMin * 60);
+                if(isNaN(totalSec) || !isFinite(totalSec)) totalSec = 0;
+                let h = Math.floor(totalSec / 3600).toString().padStart(2, '0');
+                let m = Math.floor((totalSec % 3600) / 60).toString().padStart(2, '0');
+                let s = (totalSec % 60).toString().padStart(2, '0');
+                document.getElementById('statTime').innerText = `${h}:${m}:${s}`;
             }
-            document.getElementById('timeSlider').value = currentDrawLimit;
-            document.getElementById('lblProgress').innerText = Math.floor(currentDrawLimit);
-            drawCanvas();
-            if(isPlaying) animationFrameId = requestAnimationFrame(animatePlay);
-        }
 
-        // İSTATİSTİKLER VE BİRİM DÖNÜŞÜMÜ
-        function updateStatsUI() {
-            let multL = currentUnit === 'imperial' ? 0.0393701 : 1;
-            let unitTxt = currentUnit === 'imperial' ? ' in' : ' mm';
-            
-            document.getElementById('statLines').innerText = stats.lines;
-            document.getElementById('statCut').innerText = (stats.cutDist * multL).toFixed(2) + unitTxt;
-            document.getElementById('statRapid').innerText = (stats.rapidDist * multL).toFixed(2) + unitTxt;
+            // DOSYA SEÇİMİ
+            window.handleFileUpload = function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = e => { document.getElementById('gcodeInput').value = e.target.result; window.startAnalysis(); };
+                    reader.readAsText(file);
+                }
+            };
 
-            let bx1 = (globalBounds.minX * multL).toFixed(1);
-            let bx2 = (globalBounds.maxX * multL).toFixed(1);
-            let by1 = (globalBounds.minY * multL).toFixed(1);
-            let by2 = (globalBounds.maxY * multL).toFixed(1);
-            let bz = (globalBounds.minZ * multL).toFixed(2);
-            document.getElementById('statBoundsXY').innerHTML = `X: ${bx1} / ${bx2}<br>Y: ${by1} / ${by2}`;
-            document.getElementById('statBoundsZ').innerText = bz + unitTxt;
-
-            let totalSec = Math.round(stats.timeMin * 60);
-            let h = Math.floor(totalSec / 3600).toString().padStart(2, '0');
-            let m = Math.floor((totalSec % 3600) / 60).toString().padStart(2, '0');
-            let s = (totalSec % 60).toString().padStart(2, '0');
-            document.getElementById('statTime').innerText = `${h}:${m}:${s}`;
-        }
-
-        // DOSYA YÜKLEME VE ÖRNEK G-CODE
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = e => { document.getElementById('gcodeInput').value = e.target.result; startAnalysis(); };
-                reader.readAsText(file);
-            }
-        }
-        function loadSample() {
-            const sampleGcode = `(Havacılık Komponenti - Dairesel Cep Boşaltma ve Dış Kontur)
+            window.loadSample = function() {
+                const sampleGcode = `(Havacılık Komponenti - Dairesel Cep Boşaltma ve Dış Kontur)
 G21 G90 G94 (Metrik, Mutlak, Dakikada İlerleme)
 F1200 S3500 M3
 G0 X0 Y0 Z10 (Güvenlik)
@@ -876,66 +900,69 @@ G2 X-10 Y-10 I10 J0
 G0 Z20 (Bitiş)
 M5
 M30`;
-            document.getElementById('gcodeInput').value = sampleGcode;
-            startAnalysis();
-        }
+                document.getElementById('gcodeInput').value = sampleGcode;
+                window.startAnalysis();
+            };
 
-        // AI CO-PILOT YORUMLAYICI
-        let aiChatOpen = false;
-        function toggleAIChat() {
-            aiChatOpen = !aiChatOpen;
-            const win = document.getElementById('aiChatWindow');
-            if(aiChatOpen) {
-                win.classList.add('open');
-                if(document.getElementById('aiMessages').innerHTML.trim() === '') {
-                    appendAIMessage('bot', dict[currentLang].aiWelcome);
-                }
-            } else {
-                win.classList.remove('open');
-            }
-        }
-        function appendAIMessage(sender, text) {
-            const div = document.getElementById('aiMessages');
-            const bubble = document.createElement('div');
-            bubble.className = `ai-msg msg-${sender}`;
-            bubble.innerHTML = text;
-            div.appendChild(bubble);
-            div.scrollTop = div.scrollHeight;
-        }
-        function analyzeGCodeContext() {
-            if(toolpaths.length === 0) {
-                appendAIMessage('bot', dict[currentLang].aiErr); return;
-            }
-            appendAIMessage('bot', `<span id="aiTyp">${dict[currentLang].aiWait}</span>`);
-            setTimeout(() => {
-                document.getElementById('aiTyp').parentNode.remove();
-                let rapidRatio = (stats.rapidDist / (stats.cutDist + stats.rapidDist)) * 100;
-                let zDepth = Math.abs(globalBounds.minZ);
-                
-                let report = "";
-                if(currentLang === 'tr') {
-                    report = `<strong>Takım Yolu Optimizasyon Raporu:</strong><br><br>`;
-                    report += `Sisteminizde <strong>%${rapidRatio.toFixed(1)}</strong> oranında havada gezinme (G00) tespit ettim. `;
-                    if(rapidRatio > 30) report += `<span style="color:var(--danger)">Bu çok yüksek bir değer! CAM programınızdan güvenlik mesafesini (Z Clearance) düşürmenizi öneririm.</span><br><br>`;
-                    else report += `<span style="color:var(--success)">Bu oldukça verimli bir değer. Optimizasyon iyi görünüyor.</span><br><br>`;
-                    report += `Maksimum takım dalış derinliği Z: -${zDepth.toFixed(1)} mm. Mil hızınızın bu derinliği karşılayıp karşılamadığını talaş yükü grafiğinden kontrol edin.`;
+            // AI CO-PILOT
+            window.toggleAIChat = function() {
+                aiChatOpen = !aiChatOpen;
+                const win = document.getElementById('aiChatWindow');
+                if(aiChatOpen) {
+                    win.classList.add('open');
+                    if(document.getElementById('aiMessages').innerHTML.trim() === '') {
+                        appendAIMessage('bot', dict[currentLang].aiWelcome);
+                    }
                 } else {
-                    report = `<strong>Toolpath Optimization Report:</strong><br><br>`;
-                    report += `I detected that <strong>${rapidRatio.toFixed(1)}%</strong> of the path is rapid movement (G00). `;
-                    if(rapidRatio > 30) report += `<span style="color:var(--danger)">This is very high! Consider reducing the Z Clearance distance in your CAM software to save time.</span><br><br>`;
-                    else report += `<span style="color:var(--success)">This is an efficient value. Optimization looks good.</span><br><br>`;
-                    report += `Maximum plunge depth is Z: -${zDepth.toFixed(1)} mm. Ensure your spindle speed and feedrate match the chip load for this depth.`;
+                    win.classList.remove('open');
                 }
-                appendAIMessage('bot', report);
-            }, 1000);
-        }
+            };
 
-        // Başlatıcı
-        window.onload = () => {
+            function appendAIMessage(sender, text) {
+                const div = document.getElementById('aiMessages');
+                const bubble = document.createElement('div');
+                bubble.className = `ai-msg msg-${sender}`;
+                bubble.innerHTML = text;
+                div.appendChild(bubble);
+                div.scrollTop = div.scrollHeight;
+            }
+
+            window.analyzeGCodeContext = function() {
+                if(toolpaths.length === 0) {
+                    appendAIMessage('bot', dict[currentLang].aiErr); return;
+                }
+                appendAIMessage('bot', `<span id="aiTyp">${dict[currentLang].aiWait}</span>`);
+                setTimeout(() => {
+                    let typEl = document.getElementById('aiTyp');
+                    if(typEl) typEl.parentNode.remove();
+                    
+                    let rapidRatio = (stats.rapidDist / (stats.cutDist + stats.rapidDist)) * 100;
+                    if(isNaN(rapidRatio)) rapidRatio = 0;
+                    let zDepth = Math.abs(globalBounds.minZ === Infinity ? 0 : globalBounds.minZ);
+                    
+                    let report = "";
+                    if(currentLang === 'tr') {
+                        report = `<strong>Takım Yolu Optimizasyon Raporu:</strong><br><br>`;
+                        report += `Sisteminizde <strong>%${rapidRatio.toFixed(1)}</strong> oranında havada gezinme (G00) tespit ettim. `;
+                        if(rapidRatio > 30) report += `<span style="color:var(--danger)">Bu çok yüksek bir değer! CAM programınızdan güvenlik mesafesini (Z Clearance) düşürmenizi öneririm.</span><br><br>`;
+                        else report += `<span style="color:var(--success)">Bu oldukça verimli bir değer. Optimizasyon iyi görünüyor.</span><br><br>`;
+                        report += `Maksimum takım dalış derinliği Z: -${zDepth.toFixed(1)} mm. Mil hızınızın bu derinliği karşılayıp karşılamadığını talaş yükü grafiğinden kontrol edin.`;
+                    } else {
+                        report = `<strong>Toolpath Optimization Report:</strong><br><br>`;
+                        report += `I detected that <strong>${rapidRatio.toFixed(1)}%</strong> of the path is rapid movement (G00). `;
+                        if(rapidRatio > 30) report += `<span style="color:var(--danger)">This is very high! Consider reducing the Z Clearance distance in your CAM software to save time.</span><br><br>`;
+                        else report += `<span style="color:var(--success)">This is an efficient value. Optimization looks good.</span><br><br>`;
+                        report += `Maximum plunge depth is Z: -${zDepth.toFixed(1)} mm. Ensure your spindle speed and feedrate match the chip load for this depth.`;
+                    }
+                    appendAIMessage('bot', report);
+                }, 1000);
+            };
+
+            // Başlatma Sekansları
             applyTranslations();
             resizeCanvas();
-            loadSample(); // Otomatik olarak güzel bir görselle başlasın
-        };
+            window.loadSample();
+        });
     </script>
 </body>
 </html>
