@@ -20,9 +20,6 @@
             --muted: #94a3b8;
             --border: #334155;
             --input-bg: rgba(15, 23, 42, 0.6);
-            --g0-color: #ef4444; 
-            --g1-color: #38bdf8; 
-            --g2-color: #10b981;
             --grid-color: rgba(255, 255, 255, 0.05);
         }
 
@@ -77,115 +74,52 @@
         }
         .header-actions { display: flex; gap: 10px; align-items: center; }
         .action-btn { 
-            background: transparent; 
-            color: var(--muted); 
-            border: 1px solid var(--border); 
-            padding: 8px 16px; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: 600; 
-            font-size: 12px;
-            transition: all 0.2s; 
-            font-family: 'Inter', sans-serif;
+            background: transparent; color: var(--muted); border: 1px solid var(--border); 
+            padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px;
+            transition: all 0.2s; font-family: 'Inter', sans-serif;
         }
-        .action-btn:hover, .action-btn.active { 
-            color: var(--text);
-            background: var(--panel);
-            border-color: var(--primary);
-        }
+        .action-btn:hover, .action-btn.active { color: var(--text); background: var(--panel); border-color: var(--primary); }
 
         /* ANA YAPI */
-        .container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-            width: 100%;
-        }
+        .container { display: flex; flex: 1; overflow: hidden; width: 100%; }
 
         /* SOL PANEL (GİRDİ & KONTROL) */
         .sidebar {
-            width: 440px;
-            background: var(--panel);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            flex-shrink: 0;
-            transition: background-color 0.3s;
-            z-index: 10;
-            padding-bottom: 100px; /* AI Butonunun üzerini kapatmaması için güvenlik boşluğu */
+            width: 440px; background: var(--panel); border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0;
+            transition: background-color 0.3s; z-index: 10;
         }
-        .sidebar-section {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-        }
-        .section-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .sidebar-section { padding: 20px; border-bottom: 1px solid var(--border); }
+        .section-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
 
         /* G-CODE EDİTÖRÜ */
         .editor-wrapper {
-            position: relative;
-            width: 100%;
-            height: 220px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: var(--input-bg);
-            overflow: hidden;
+            position: relative; width: 100%; height: 200px; border-radius: 8px;
+            border: 1px solid var(--border); background: var(--input-bg); overflow: hidden;
         }
         .gcode-input {
-            width: 100%;
-            height: 100%;
-            background: transparent;
-            border: none;
-            color: var(--text);
-            font-family: 'Fira Code', monospace;
-            font-size: 12px;
-            padding: 12px;
-            box-sizing: border-box;
-            resize: none;
-            line-height: 1.5;
+            width: 100%; height: 100%; background: transparent; border: none; color: var(--text);
+            font-family: 'Fira Code', monospace; font-size: 12px; padding: 12px; box-sizing: border-box; resize: none; line-height: 1.5;
         }
         .gcode-input:focus { outline: none; box-shadow: inset 0 0 0 2px var(--primary-glow); }
 
-        /* KAPSAMLI MAKİNE AYARLARI */
+        /* MAKİNE AYARLARI */
         .input-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
         .input-grid-2 label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
-        .input-grid-2 input {
-            width: 100%; padding: 10px; background: var(--input-bg); border: 1px solid var(--border); 
-            color: var(--text); border-radius: 6px; box-sizing: border-box; font-family: 'Fira Code', monospace; font-size: 13px;
-        }
+        .input-grid-2 input { width: 100%; padding: 10px; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); border-radius: 6px; box-sizing: border-box; font-family: 'Fira Code', monospace; font-size: 13px; }
         .input-grid-2 input:focus { outline: none; border-color: var(--primary); }
 
         /* BUTONLAR */
         .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .btn {
-            width: 100%; padding: 12px; background: var(--primary); color: #000; border: none;
-            border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 13px;
-        }
+        .btn { width: 100%; padding: 12px; background: var(--primary); color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 13px; }
         .btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
         .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
         .btn-outline:hover { background: var(--border); }
         .btn-full { grid-column: span 2; }
 
         /* İSTATİSTİKLER */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-        .stat-card {
-            background: var(--input-bg);
-            border: 1px solid var(--border);
-            padding: 15px;
-            border-radius: 10px;
-        }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .stat-card { background: var(--input-bg); border: 1px solid var(--border); padding: 15px; border-radius: 10px; }
         .stat-card span { display: block; font-size: 11px; color: var(--muted); margin-bottom: 6px; font-weight: 500;}
         .stat-card strong { font-size: 16px; font-family: 'Fira Code', monospace; color: var(--text); }
         .stat-card.highlight { border-color: var(--primary); background: var(--primary-glow); }
@@ -194,32 +128,21 @@
         .stat-card.cost strong { color: var(--success); }
 
         /* SAĞ PANEL (CANVAS & SİMÜLASYON) */
-        .main-view {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: var(--bg);
-            position: relative;
-        }
+        .main-view { flex: 1; display: flex; flex-direction: column; background: var(--bg); position: relative; }
         
         .canvas-toolbar {
-            padding: 15px 20px;
-            background: var(--panel);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 15px 20px; background: var(--panel); border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
         }
-        .legend { display: flex; gap: 20px; font-size: 12px; color: var(--muted); font-weight: 500;}
+        .legend { display: flex; gap: 15px; font-size: 12px; color: var(--muted); font-weight: 500; align-items: center;}
         .legend-item { display: flex; align-items: center; gap: 6px; }
         .legend-color { width: 14px; height: 4px; border-radius: 2px; }
 
+        /* DÜZLEM SEÇİCİ */
+        .plane-select { background: var(--input-bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; outline: none;}
+
         .canvas-wrapper {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            background-color: var(--bg);
-            cursor: grab;
+            flex: 1; position: relative; overflow: hidden; background-color: var(--bg); cursor: grab;
         }
         .canvas-wrapper:active { cursor: grabbing; }
         canvas { display: block; width: 100%; height: 100%; }
@@ -227,73 +150,34 @@
         /* SİMÜLASYON KONTROLLERİ */
         .timeline-container {
             padding: 20px;
-            padding-bottom: 100px; /* AI Butonu İçin Güvenlik Boşluğu */
-            background: var(--panel);
-            border-top: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+            padding-right: 110px; /* AI Butonu İçin Güvenlik Boşluğu */
+            background: var(--panel); border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 15px;
         }
         .slider-row { display: flex; align-items: center; gap: 15px; }
-        input[type=range] {
-            flex: 1;
-            -webkit-appearance: none;
-            background: transparent;
-            height: 6px;
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%; height: 6px; background: var(--border); border-radius: 3px;
-        }
+        input[type=range] { flex: 1; -webkit-appearance: none; background: transparent; height: 6px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; background: var(--border); border-radius: 3px; }
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%;
             background: var(--primary); cursor: pointer; margin-top: -6px; box-shadow: 0 0 10px var(--primary-glow);
         }
-        .play-btn {
-            background: transparent; border: 1px solid var(--border); color: var(--text); width: 40px; height: 40px;
-            border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s;
-        }
+        .play-btn { background: transparent; border: 1px solid var(--border); color: var(--text); width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; }
         .play-btn:hover { background: var(--primary); color: #000; border-color: var(--primary); }
-        .progress-text { font-family: 'Fira Code', monospace; font-size: 13px; color: var(--primary); font-weight: 600; width: 80px; text-align: right;}
+        .progress-text { font-family: 'Fira Code', monospace; font-size: 13px; color: var(--primary); font-weight: 600; width: 60px; text-align: right;}
 
         /* AI CHATBOT (AeroMech AI Co-Pilot) */
         .ai-fab {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
-            color: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 10px 25px var(--primary-glow);
-            cursor: pointer;
-            z-index: 1000;
-            transition: all 0.3s;
-            border: 2px solid rgba(255,255,255,0.2);
+            position: absolute; bottom: 25px; right: 25px; width: 60px; height: 60px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: #000;
+            display: flex; justify-content: center; align-items: center; box-shadow: 0 10px 25px var(--primary-glow);
+            cursor: pointer; z-index: 1000; transition: all 0.3s; border: 2px solid rgba(255,255,255,0.2);
         }
         .ai-fab:hover { transform: scale(1.1); }
         .ai-chat-window {
-            position: fixed;
-            bottom: 100px;
-            right: 30px;
-            width: 380px;
-            max-height: 500px;
-            background: rgba(11, 17, 32, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            z-index: 999;
-            transform: translateY(20px);
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s ease;
+            position: absolute; bottom: 95px; right: 25px; width: 380px; max-height: 500px;
+            background: rgba(11, 17, 32, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5); z-index: 999; transform: translateY(20px); opacity: 0;
+            pointer-events: none; transition: all 0.3s ease;
         }
         body.light-theme .ai-chat-window { background: rgba(255, 255, 255, 0.95); }
         .ai-chat-window.open { transform: translateY(0); opacity: 1; pointer-events: all; }
@@ -303,11 +187,12 @@
         .msg-bot { background: var(--input-bg); border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 4px; }
         .ai-analyze-btn { background: var(--primary-glow); color: var(--primary); border: 1px solid rgba(56, 189, 248, 0.3); margin: 0 20px 20px 20px; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 13px;}
         .ai-analyze-btn:hover { background: var(--primary); color: #000; }
-
-        /* KULLANICI ARAYÜZÜ ETKİLEŞİMLERİ */
-        .tooltip { position: relative; display: inline-block; cursor: help; border-bottom: 1px dashed var(--muted);}
-        .tooltip .tooltiptext { visibility: hidden; width: 220px; background: var(--panel); color: var(--text); text-align: center; border-radius: 6px; padding: 10px; border: 1px solid var(--border); position: absolute; z-index: 1; bottom: 150%; left: 50%; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s; font-size: 11px; font-weight: 400; box-shadow: 0 5px 15px rgba(0,0,0,0.3);}
-        .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
+        
+        /* SCROLLBAR GİZLEME */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
     </style>
 </head>
 <body>
@@ -343,7 +228,7 @@
                 </div>
             </div>
 
-            <!-- YENİ EKLENEN KAPSAMLI ÖZELLİK: MAKİNE VE MALİYET AYARLARI -->
+            <!-- MAKİNE VE MALİYET AYARLARI -->
             <div class="sidebar-section">
                 <div class="section-title" id="lblMachineSet">Makine & Maliyet Ayarları</div>
                 <div class="input-grid-2">
@@ -356,17 +241,16 @@
                         <input type="number" id="hourlyRate" value="65">
                     </div>
                 </div>
-                <button class="btn btn-full" onclick="startAnalysis()" id="btnAnalyze" style="margin-top: 5px;">Analiz & Simülasyonu Başlat</button>
+                <button class="btn btn-full" onclick="startAnalysis()" id="btnAnalyzeMain" style="margin-top: 5px;">Analiz & Simülasyonu Başlat</button>
             </div>
 
-            <div class="sidebar-section" style="flex:1;">
+            <div class="sidebar-section" style="flex:1; border-bottom:none;">
                 <div class="section-title" id="lblAnalysisResults">Analiz Sonuçları</div>
                 <div class="stats-grid">
                     <div class="stat-card highlight">
                         <span id="lblTime">Tahmini İşleme Süresi</span>
                         <strong id="statTime">00:00:00</strong>
                     </div>
-                    <!-- YENİ MALİYET KARTI -->
                     <div class="stat-card cost">
                         <span id="lblCost">Tahmini Üretim Maliyeti</span>
                         <strong id="statCost">$0.00</strong>
@@ -394,11 +278,19 @@
         <!-- SAĞ PANEL (CANVAS VE TİMELİNE) -->
         <div class="main-view">
             <div class="canvas-toolbar">
-                <div style="font-weight:600; font-size:14px; color:var(--text);" id="lblCanvasTitle">Takım Yolu Düzlemi (X-Y) - <span class="tooltip" id="toolPanZoom">Fare ile sürükle (Pan) & Tekerlek ile yakınlaş (Zoom)<span class="tooltiptext" id="ttPanZoom">Kanvas üzerinde farenizin sol tuşuna basılı tutarak kaydırabilir, tekerleği kullanarak detaylara yakınlaşabilirsiniz.</span></span></div>
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <div style="font-weight:600; font-size:14px; color:var(--text);" id="lblCanvasTitle">Görünüm Düzlemi:</div>
+                    <!-- YENİ DÜZLEM SEÇİCİ -->
+                    <select id="viewPlane" class="plane-select" onchange="triggerPlaneChange()">
+                        <option value="XY" id="optXY">Üstten (X-Y)</option>
+                        <option value="XZ" id="optXZ">Önden (X-Z)</option>
+                        <option value="YZ" id="optYZ">Yandan (Y-Z)</option>
+                    </select>
+                </div>
                 <div class="legend">
-                    <div class="legend-item"><div class="legend-color" style="background: var(--g0-color);"></div> <span id="legG0">G00 (Boşta)</span></div>
-                    <div class="legend-item"><div class="legend-color" style="background: var(--g1-color);"></div> <span id="legG1">G01 (Lineer)</span></div>
-                    <div class="legend-item"><div class="legend-color" style="background: var(--g2-color);"></div> <span id="legG2">G02/G03 (Dairesel)</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background: #ef4444;"></div> <span id="legG0">G00 (Boşta)</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background: #38bdf8;"></div> <span id="legG1">G01 (Lineer)</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background: #10b981;"></div> <span id="legG2">G02/G03 (Yay)</span></div>
                 </div>
             </div>
             
@@ -419,32 +311,31 @@
                     <div class="progress-text"><span id="lblProgress">100</span>%</div>
                 </div>
             </div>
+            
+            <!-- AI CHATBOT (Sadece sağ panel içinde yüzecek, timeline'ı kapatmayacak) -->
+            <div class="ai-fab" onclick="toggleAIChat()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+                </svg>
+            </div>
+            <div class="ai-chat-window" id="aiChatWindow">
+                <div class="ai-header">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg>
+                    AeroMech AI Co-Pilot
+                </div>
+                <div class="ai-messages" id="aiMessages"></div>
+                <button class="ai-analyze-btn" id="btnAIAnalyze" onclick="analyzeGCodeContext()">Maliyet ve Optimizasyon Raporu Al</button>
+            </div>
         </div>
     </div>
 
-    <!-- AI CHATBOT -->
-    <div class="ai-fab" onclick="toggleAIChat()">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
-        </svg>
-    </div>
-    <div class="ai-chat-window" id="aiChatWindow">
-        <div class="ai-header">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg>
-            AeroMech AI Co-Pilot
-        </div>
-        <div class="ai-messages" id="aiMessages"></div>
-        <button class="ai-analyze-btn" id="btnAIAnalyze" onclick="analyzeGCodeContext()">Maliyet ve Optimizasyon Raporu Al</button>
-    </div>
-
-    <!-- %100 GÜVENLİ VE KÜRESEL JAVASCRIPT MOTORU -->
+    <!-- KÜRESEL JAVASCRIPT MOTORU (TÜM HATALARDAN ARINDIRILMIŞ SÜRÜM) -->
     <script>
-        // GLOBALS
         let currentLang = 'tr';
         let currentUnit = 'metric';
         let isDarkTheme = true;
         let toolpaths = []; 
-        let globalBounds = { minX: 0, maxX: 0, minY: 0, maxY: 0, minZ: 0 };
+        let globalBounds = { minX: 0, maxX: 0, minY: 0, maxY: 0, minZ: 0, maxZ: 0 };
         let stats = { cutDist: 0, rapidDist: 0, timeMin: 0, lines: 0, cost: 0 };
         let transform = { x: 0, y: 0, scale: 1 };
         let isDragging = false;
@@ -456,31 +347,27 @@
         
         let canvas, ctx, wrapper;
 
-        // SÖZLÜK
+        // DİL SÖZLÜĞÜ
         const dict = {
             tr: {
-                themeLight: "Aydınlık Tema", themeDark: "Karanlık Tema",
-                unitSI: "Birim: SI (mm)", unitImp: "Birim: Imperial (in)",
-                lblDataEntry: "G-Code Veri Girişi", btnUpload: "Dosya Seç", btnSample: "Örnek Yükle", btnAnalyze: "Analiz & Simülasyonu Başlat",
+                themeLight: "Aydınlık Tema", themeDark: "Karanlık Tema", unitSI: "Birim: SI (mm)", unitImp: "Birim: Imperial (in)",
+                lblDataEntry: "G-Code Veri Girişi", btnUpload: "Dosya Seç", btnSample: "Örnek Yükle", btnAnalyzeMain: "Analiz & Simülasyonu Başlat",
                 lblMachineSet: "Makine & Maliyet Ayarları", lblRapidSet: "G00 Hızı (mm/dk)", lblHourlyCost: "Saatlik Ücret ($/sa)",
                 lblAnalysisResults: "Analiz Sonuçları", lblTime: "Tahmini İşleme Süresi", lblCost: "Tahmini Üretim Maliyeti", lblLines: "Toplam Satır (Blok)",
                 lblCutDist: "Kesim (G01/02/03)", lblRapidDist: "Gezinme (G00)", lblBoundsXY: "X-Y Sınırları (Min / Max)", lblBoundsZ: "Maks. Dalış (Z Derinliği)",
-                lblCanvasTitle: "Takım Yolu Düzlemi (X-Y)", toolPanZoom: "Fare ile sürükle (Pan) & Tekerlek ile yakınlaş (Zoom)",
-                ttPanZoom: "Kanvas üzerinde farenizin sol tuşuna basılı tutarak kaydırabilir, tekerleği kullanarak detaylara yakınlaşabilirsiniz.",
-                legG0: "G00 (Boşta)", legG1: "G01 (Lineer)", legG2: "G02/G03 (Dairesel)",
+                lblCanvasTitle: "Görünüm Düzlemi:", optXY: "Üstten (X-Y)", optXZ: "Önden (X-Z)", optYZ: "Yandan (Y-Z)",
+                legG0: "G00 (Boşta)", legG1: "G01 (Lineer)", legG2: "G02/G03 (Yay)",
                 lblTimeline: "Simülasyon İlerlemesi", lblTools: "Aktif Takım: T1", btnAIAnalyze: "Maliyet ve Optimizasyon Raporu Al",
                 aiWelcome: "Merhaba! G-Code verinizi analiz edip, üretim maliyeti ve takım yolu optimizasyonu konusunda mühendislik tavsiyeleri verebilirim.",
                 aiErr: "Lütfen önce geçerli bir G-Code analizi yapın.", aiWait: "Talaşlı imalat verileri analiz ediliyor..."
             },
             en: {
-                themeLight: "Light Theme", themeDark: "Dark Theme",
-                unitSI: "Unit: SI (mm)", unitImp: "Unit: Imperial (in)",
-                lblDataEntry: "G-Code Data Entry", btnUpload: "Select File", btnSample: "Load Sample", btnAnalyze: "Run Analysis & Simulation",
+                themeLight: "Light Theme", themeDark: "Dark Theme", unitSI: "Unit: SI (mm)", unitImp: "Unit: Imperial (in)",
+                lblDataEntry: "G-Code Data Entry", btnUpload: "Select File", btnSample: "Load Sample", btnAnalyzeMain: "Run Analysis & Simulation",
                 lblMachineSet: "Machine & Cost Settings", lblRapidSet: "G00 Speed (mm/min)", lblHourlyCost: "Hourly Rate ($/hr)",
                 lblAnalysisResults: "Analysis Results", lblTime: "Estimated Machining Time", lblCost: "Estimated Production Cost", lblLines: "Total Blocks (Lines)",
                 lblCutDist: "Cutting (G01/02/03)", lblRapidDist: "Rapid (G00)", lblBoundsXY: "X-Y Boundaries (Min/Max)", lblBoundsZ: "Max Plunge (Z Depth)",
-                lblCanvasTitle: "Toolpath Plane (X-Y)", toolPanZoom: "Drag to Pan & Scroll to Zoom",
-                ttPanZoom: "Hold left mouse button on the canvas to pan around, and use the mouse wheel to zoom in on details.",
+                lblCanvasTitle: "View Plane:", optXY: "Top View (X-Y)", optXZ: "Front View (X-Z)", optYZ: "Side View (Y-Z)",
                 legG0: "G00 (Rapid)", legG1: "G01 (Linear)", legG2: "G02/G03 (Arc)",
                 lblTimeline: "Simulation Progress", lblTools: "Active Tool: T1", btnAIAnalyze: "Get Cost & Optimization Report",
                 aiWelcome: "Hello! I can analyze your G-Code and provide engineering advice on production costs and toolpath optimization.",
@@ -488,7 +375,6 @@
             }
         };
 
-        // DOM YÜKLENDİĞİNDE ÇALIŞACAK KURŞUN GEÇİRMEZ INIT
         window.onload = function() {
             canvas = document.getElementById('toolpathCanvas');
             ctx = canvas.getContext('2d');
@@ -497,8 +383,7 @@
             window.addEventListener('resize', resizeCanvas);
             
             wrapper.addEventListener('mousedown', e => {
-                isDragging = true;
-                dragStart = { x: e.clientX - transform.x, y: e.clientY - transform.y };
+                isDragging = true; dragStart = { x: e.clientX - transform.x, y: e.clientY - transform.y };
             });
             window.addEventListener('mouseup', () => isDragging = false);
             window.addEventListener('mousemove', e => {
@@ -513,15 +398,12 @@
                 const zoomSensitivity = 0.1;
                 const delta = e.deltaY > 0 ? -1 : 1;
                 const scaleAmount = 1 + (delta * zoomSensitivity);
-                
                 const rect = canvas.getBoundingClientRect();
                 const mouseX = e.clientX - rect.left;
                 const mouseY = e.clientY - rect.top;
-
                 transform.x = mouseX - (mouseX - transform.x) * scaleAmount;
                 transform.y = mouseY - (mouseY - transform.y) * scaleAmount;
                 transform.scale *= scaleAmount;
-
                 drawCanvas();
             }, { passive: false });
 
@@ -530,7 +412,6 @@
             window.loadSample(); 
         };
 
-        // KÜRESEL FONKSİYONLAR 
         window.toggleLang = function() {
             currentLang = currentLang === 'tr' ? 'en' : 'tr';
             document.getElementById('langBtn').innerText = currentLang === 'tr' ? 'TR' : 'EN';
@@ -559,15 +440,18 @@
                 const el = document.getElementById(key);
                 if(el) el.innerHTML = t[key];
             });
-            document.getElementById('gcodeInput').placeholder = currentLang === 'tr' ? "G-Code buraya yapıştırın veya dosya yükleyin..." : "Paste G-Code here or upload a file...";
-            document.getElementById('themeBtn').innerText = t[isDarkTheme ? 'themeLight' : 'themeDark'];
-            document.getElementById('unitBtn').innerText = t[currentUnit === 'metric' ? 'unitSI' : 'unitImp'];
-            
+            const gcodeInputEl = document.getElementById('gcodeInput');
+            if(gcodeInputEl) gcodeInputEl.placeholder = currentLang === 'tr' ? "G-Code buraya yapıştırın veya dosya yükleyin..." : "Paste G-Code here or upload a file...";
             const msgs = document.getElementById('aiMessages');
             if(msgs && msgs.children.length === 1 && msgs.children[0].classList.contains('msg-bot')) {
                 msgs.children[0].innerHTML = t.aiWelcome;
             }
         }
+
+        window.triggerPlaneChange = function() {
+            centerAndFit();
+            drawCanvas();
+        };
 
         function resizeCanvas() {
             if(!wrapper || !canvas) return;
@@ -584,38 +468,57 @@
         }
 
         function centerAndFit() {
-            let w = globalBounds.maxX - globalBounds.minX;
-            let h = globalBounds.maxY - globalBounds.minY;
+            const planeSelect = document.getElementById('viewPlane');
+            const plane = planeSelect ? planeSelect.value : 'XY';
             
-            if (w <= 0.001) w = 10; 
-            if (h <= 0.001) h = 10;
+            let min1, max1, min2, max2;
+            if(plane === 'XY') {
+                min1 = globalBounds.minX; max1 = globalBounds.maxX;
+                min2 = globalBounds.minY; max2 = globalBounds.maxY;
+            } else if(plane === 'XZ') {
+                min1 = globalBounds.minX; max1 = globalBounds.maxX;
+                min2 = globalBounds.minZ; max2 = globalBounds.maxZ;
+            } else { // YZ
+                min1 = globalBounds.minY; max1 = globalBounds.maxY;
+                min2 = globalBounds.minZ; max2 = globalBounds.maxZ;
+            }
+
+            let w = max1 - min1;
+            let h = max2 - min2;
+            
+            if (isNaN(w) || w <= 0.001) w = 10; 
+            if (isNaN(h) || h <= 0.001) h = 10;
 
             const padding = 60;
             const scaleX = (canvas.width - padding * 2) / w;
             const scaleY = (canvas.height - padding * 2) / h;
             
             transform.scale = Math.min(scaleX, scaleY);
-            if (transform.scale <= 0 || !isFinite(transform.scale)) transform.scale = 1;
+            if (transform.scale <= 0 || isNaN(transform.scale) || !isFinite(transform.scale)) transform.scale = 1;
 
-            const cx = (globalBounds.maxX + globalBounds.minX) / 2;
-            const cy = (globalBounds.maxY + globalBounds.minY) / 2;
+            const c1 = (max1 + min1) / 2;
+            const c2 = (max2 + min2) / 2;
 
-            transform.x = (canvas.width / 2) - (cx * transform.scale);
-            transform.y = (canvas.height / 2) + (cy * transform.scale); 
+            transform.x = (canvas.width / 2) - (c1 * transform.scale);
+            transform.y = (canvas.height / 2) + (c2 * transform.scale); 
         }
 
-        // --- ANA ANALİZ MOTORU ---
+        // --- ANA G-CODE AYRIŞTIRICI ---
         window.startAnalysis = function() {
             try {
-                const raw = document.getElementById('gcodeInput').value.trim();
+                const gcodeInputEl = document.getElementById('gcodeInput');
+                if(!gcodeInputEl) throw new Error("G-Code input element missing.");
+                
+                const raw = gcodeInputEl.value.trim();
                 if (!raw) {
                     alert(currentLang === 'tr' ? "Lütfen analiz edilecek bir G-Code girin." : "Please enter G-Code to analyze.");
                     return;
                 }
                 
-                // Makine ve Maliyet Ayarlarını Çek
-                let sysRapidFeed = parseFloat(document.getElementById('rapidFeed').value) || 4000;
-                let sysHourlyRate = parseFloat(document.getElementById('hourlyRate').value) || 0;
+                let rfEl = document.getElementById('rapidFeed');
+                let hrEl = document.getElementById('hourlyRate');
+                let sysRapidFeed = (rfEl && parseFloat(rfEl.value)) || 4000;
+                let sysHourlyRate = (hrEl && parseFloat(hrEl.value)) || 0;
 
                 const lines = raw.split('\n');
                 toolpaths = [];
@@ -626,7 +529,7 @@
                 let scaleFact = 1.0; 
 
                 stats = { cutDist: 0, rapidDist: 0, timeMin: 0, lines: lines.length, cost: 0 };
-                globalBounds = { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity, minZ: Infinity };
+                globalBounds = { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity, minZ: Infinity, maxZ: -Infinity };
 
                 lines.forEach((line, index) => {
                     let text = line.split(';')[0].split('(')[0].trim().toUpperCase();
@@ -637,9 +540,10 @@
                     if (text.includes('G90')) absoluteMode = true;
                     if (text.includes('G91')) absoluteMode = false;
 
-                    let mMatch = text.match(/G(0[0-3]?|[1-3])/);
+                    // GÜVENLİ REGEX: Diğer numaralarla karışmasını önler
+                    let mMatch = text.match(/G0?[0-3]\b/);
                     if (mMatch) {
-                        let code = parseInt(mMatch[1]);
+                        let code = parseInt(mMatch[0].replace('G',''), 10);
                         if(code === 0) mode = 'G0';
                         else if(code === 1) mode = 'G1';
                         else if(code === 2) mode = 'G2';
@@ -667,10 +571,10 @@
                             let dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
                             
                             if(dist > 0.001) {
-                                toolpaths.push({ type: mode, x1: cx, y1: cy, x2: nx, y2: ny, z2: nz, dist: dist, idx: index });
+                                toolpaths.push({ type: mode, x1: cx, y1: cy, z1: cz, x2: nx, y2: ny, z2: nz, dist: dist, idx: index });
                                 if (mode === 'G0') {
                                     stats.rapidDist += dist;
-                                    stats.timeMin += dist / sysRapidFeed; // Özelleştirilmiş Hızlı Gezinme
+                                    stats.timeMin += dist / sysRapidFeed;
                                 } else {
                                     stats.cutDist += dist;
                                     stats.timeMin += dist / (currentFeed > 0 ? currentFeed : 1000);
@@ -694,7 +598,7 @@
                             
                             if(arcDist > 0.001) {
                                 toolpaths.push({ 
-                                    type: mode, x1: cx, y1: cy, x2: nx, y2: ny, z2: nz,
+                                    type: mode, x1: cx, y1: cy, z1: cz, x2: nx, y2: ny, z2: nz,
                                     cx: centerX, cy: centerY, r: radius, sa: startAngle, ea: endAngle, ccw: (mode==='G3'),
                                     dist: arcDist, idx: index 
                                 });
@@ -704,40 +608,44 @@
                             
                             let exX1 = centerX - radius, exX2 = centerX + radius;
                             let exY1 = centerY - radius, exY2 = centerY + radius;
-                            if(exX1 < globalBounds.minX) globalBounds.minX = exX1;
-                            if(exX2 > globalBounds.maxX) globalBounds.maxX = exX2;
-                            if(exY1 < globalBounds.minY) globalBounds.minY = exY1;
-                            if(exY2 > globalBounds.maxY) globalBounds.maxY = exY2;
+                            if(!isNaN(exX1) && exX1 < globalBounds.minX) globalBounds.minX = exX1;
+                            if(!isNaN(exX2) && exX2 > globalBounds.maxX) globalBounds.maxX = exX2;
+                            if(!isNaN(exY1) && exY1 < globalBounds.minY) globalBounds.minY = exY1;
+                            if(!isNaN(exY2) && exY2 > globalBounds.maxY) globalBounds.maxY = exY2;
                         }
 
-                        if (nx < globalBounds.minX) globalBounds.minX = nx;
-                        if (nx > globalBounds.maxX) globalBounds.maxX = nx;
-                        if (ny < globalBounds.minY) globalBounds.minY = ny;
-                        if (ny > globalBounds.maxY) globalBounds.maxY = ny;
-                        if (nz < globalBounds.minZ) globalBounds.minZ = nz;
+                        if (!isNaN(nx) && nx < globalBounds.minX) globalBounds.minX = nx;
+                        if (!isNaN(nx) && nx > globalBounds.maxX) globalBounds.maxX = nx;
+                        if (!isNaN(ny) && ny < globalBounds.minY) globalBounds.minY = ny;
+                        if (!isNaN(ny) && ny > globalBounds.maxY) globalBounds.maxY = ny;
+                        if (!isNaN(nz) && nz < globalBounds.minZ) globalBounds.minZ = nz;
+                        if (!isNaN(nz) && nz > globalBounds.maxZ) globalBounds.maxZ = nz;
 
                         cx = nx; cy = ny; cz = nz;
                     }
                 });
 
                 if (globalBounds.minX === Infinity) {
-                    globalBounds = { minX:0, maxX:0, minY:0, maxY:0, minZ:0 };
+                    globalBounds = { minX:0, maxX:0, minY:0, maxY:0, minZ:0, maxZ:0 };
                 }
 
-                // Toplam Maliyeti Hesapla
                 stats.cost = (stats.timeMin / 60) * sysHourlyRate;
 
                 resizeCanvas();
                 centerAndFit();
                 updateStatsUI();
+                
                 currentDrawLimit = 100;
-                document.getElementById('timeSlider').value = 100;
-                document.getElementById('lblProgress').innerText = "100";
+                let sliderEl = document.getElementById('timeSlider');
+                let progEl = document.getElementById('lblProgress');
+                if(sliderEl) sliderEl.value = 100;
+                if(progEl) progEl.innerText = "100";
+                
                 drawCanvas();
                 
             } catch(error) {
-                console.error("G-Code Hatası:", error);
-                alert(currentLang === 'tr' ? "Analiz sırasında bir hata oluştu. G-Code dosyanızın formatı bozuk olabilir." : "An error occurred. Your G-Code formatting might be invalid.");
+                console.error("G-Code Core Error:", error);
+                alert((currentLang === 'tr' ? "Analiz sırasında bir hata oluştu:\n" : "Analysis error:\n") + error.message);
             }
         };
 
@@ -745,12 +653,11 @@
             if(!ctx || !canvas) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // GRID
             ctx.beginPath();
             ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--grid-color').trim() || 'rgba(100,100,100,0.1)';
             ctx.lineWidth = 1;
             const gridSize = 50 * transform.scale;
-            if(gridSize > 5) {
+            if(gridSize > 5 && isFinite(gridSize)) {
                 const offsetX = transform.x % gridSize;
                 const offsetY = transform.y % gridSize;
                 for(let x = offsetX; x < canvas.width; x += gridSize) { ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); }
@@ -760,7 +667,6 @@
 
             if (toolpaths.length === 0) return;
 
-            // EKSENLER
             ctx.beginPath();
             ctx.strokeStyle = '#64748b'; ctx.lineWidth = 1.5;
             let originX = transform.x; let originY = transform.y;
@@ -770,54 +676,67 @@
             
             ctx.beginPath(); ctx.arc(originX, originY, 4, 0, Math.PI*2); ctx.fillStyle = '#f59e0b'; ctx.fill();
 
-            // ÇİZİM (Renkler Doğrudan Hex Verildi)
             const drawCount = Math.floor(toolpaths.length * (currentDrawLimit / 100));
             ctx.lineJoin = 'round';
             ctx.lineCap = 'round';
 
+            const planeSelect = document.getElementById('viewPlane');
+            const plane = planeSelect ? planeSelect.value : 'XY';
+
             for(let i=0; i<drawCount; i++) {
                 let p = toolpaths[i];
-                let px1 = transform.x + p.x1 * transform.scale;
-                let py1 = transform.y - p.y1 * transform.scale; 
-                let px2 = transform.x + p.x2 * transform.scale;
-                let py2 = transform.y - p.y2 * transform.scale;
+                let c1_1, c2_1, c1_2, c2_2;
+                
+                if(plane === 'XY') {
+                    c1_1 = p.x1; c2_1 = p.y1; c1_2 = p.x2; c2_2 = p.y2;
+                } else if(plane === 'XZ') {
+                    c1_1 = p.x1; c2_1 = p.z1; c1_2 = p.x2; c2_2 = p.z2;
+                } else {
+                    c1_1 = p.y1; c2_1 = p.z1; c1_2 = p.y2; c2_2 = p.z2;
+                }
+
+                let px1 = transform.x + c1_1 * transform.scale;
+                let py1 = transform.y - c2_1 * transform.scale; 
+                let px2 = transform.x + c1_2 * transform.scale;
+                let py2 = transform.y - c2_2 * transform.scale;
 
                 ctx.beginPath();
                 if (p.type === 'G0') {
                     ctx.moveTo(px1, py1); ctx.lineTo(px2, py2);
-                    ctx.strokeStyle = '#ef4444'; // G0 Kırmızı
+                    ctx.strokeStyle = '#ef4444';
                     ctx.lineWidth = 1.5;
                 } else if (p.type === 'G1') {
                     ctx.moveTo(px1, py1); ctx.lineTo(px2, py2);
-                    ctx.strokeStyle = '#38bdf8'; // G1 Mavi
+                    ctx.strokeStyle = '#38bdf8';
                     ctx.lineWidth = 2.5;
                 } else if (p.type === 'G2' || p.type === 'G3') {
-                    let pcx = transform.x + p.cx * transform.scale;
-                    let pcy = transform.y - p.cy * transform.scale;
-                    let pr = p.r * transform.scale;
-                    
-                    ctx.arc(pcx, pcy, pr, -p.sa, -p.ea, !p.ccw); 
-                    ctx.strokeStyle = '#10b981'; // G2/G3 Yeşil
+                    if(plane === 'XY') {
+                        let pcx = transform.x + p.cx * transform.scale;
+                        let pcy = transform.y - p.cy * transform.scale;
+                        let pr = p.r * transform.scale;
+                        if(pr < 0.0001) pr = 0.0001; // Canvas API IndexSizeError güvenlik önlemi
+                        ctx.arc(pcx, pcy, pr, -p.sa, -p.ea, !p.ccw); 
+                    } else {
+                        // Yan düzlemlerde yaylar düz çizgi olarak izdüşümlenir
+                        ctx.moveTo(px1, py1); ctx.lineTo(px2, py2);
+                    }
+                    ctx.strokeStyle = '#10b981';
                     ctx.lineWidth = 2.5;
                 }
                 ctx.stroke();
 
                 if (i === drawCount - 1 && currentDrawLimit < 100) {
-                    ctx.beginPath();
-                    ctx.arc(px2, py2, 6, 0, Math.PI*2);
-                    ctx.fillStyle = '#fff';
-                    ctx.fill();
-                    ctx.strokeStyle = '#000';
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
+                    ctx.beginPath(); ctx.arc(px2, py2, 6, 0, Math.PI*2);
+                    ctx.fillStyle = '#fff'; ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.stroke();
                 }
             }
         }
 
-        // SİMÜLASYON ANİMASYONU
         window.updateSimulationFromSlider = function() {
-            currentDrawLimit = parseFloat(document.getElementById('timeSlider').value);
-            document.getElementById('lblProgress').innerText = currentDrawLimit;
+            let sliderEl = document.getElementById('timeSlider');
+            if(sliderEl) currentDrawLimit = parseFloat(sliderEl.value);
+            let progEl = document.getElementById('lblProgress');
+            if(progEl) progEl.innerText = Math.floor(currentDrawLimit);
             drawCanvas();
         };
 
@@ -825,13 +744,15 @@
             if(toolpaths.length === 0) return;
             isPlaying = !isPlaying;
             const icon = document.getElementById('playIcon');
+            if(!icon) return;
+            
             if(isPlaying) {
                 icon.innerHTML = `<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>`;
                 if(currentDrawLimit >= 100) currentDrawLimit = 0;
                 animatePlay();
             } else {
                 icon.innerHTML = `<polygon points="5 3 19 12 5 21 5 3"></polygon>`;
-                cancelAnimationFrame(animationFrameId);
+                if(animationFrameId) cancelAnimationFrame(animationFrameId);
             }
         };
 
@@ -842,23 +763,29 @@
                 currentDrawLimit = 100;
                 window.togglePlay();
             }
-            document.getElementById('timeSlider').value = currentDrawLimit;
-            document.getElementById('lblProgress').innerText = Math.floor(currentDrawLimit);
+            let s = document.getElementById('timeSlider');
+            if(s) s.value = currentDrawLimit;
+            let p = document.getElementById('lblProgress');
+            if(p) p.innerText = Math.floor(currentDrawLimit);
             drawCanvas();
             if(isPlaying) animationFrameId = requestAnimationFrame(animatePlay);
         }
 
-        // İSTATİSTİKLER (GÜVENLİ ÇIKTILAR)
         function updateStatsUI() {
             let multL = currentUnit === 'imperial' ? 0.0393701 : 1;
             let unitTxt = currentUnit === 'imperial' ? ' in' : ' mm';
             
-            document.getElementById('statLines').innerText = stats.lines;
-            document.getElementById('statCut').innerText = (stats.cutDist * multL).toFixed(2) + unitTxt;
-            document.getElementById('statRapid').innerText = (stats.rapidDist * multL).toFixed(2) + unitTxt;
+            let linesEl = document.getElementById('statLines');
+            if(linesEl) linesEl.innerText = stats.lines;
             
-            // Maliyeti Yazdır
-            document.getElementById('statCost').innerText = "$" + stats.cost.toFixed(2);
+            let cutEl = document.getElementById('statCut');
+            if(cutEl) cutEl.innerText = (stats.cutDist * multL).toFixed(2) + unitTxt;
+            
+            let rapidEl = document.getElementById('statRapid');
+            if(rapidEl) rapidEl.innerText = (stats.rapidDist * multL).toFixed(2) + unitTxt;
+            
+            let costEl = document.getElementById('statCost');
+            if(costEl) costEl.innerText = "$" + stats.cost.toFixed(2);
 
             let bx1 = globalBounds.minX === Infinity ? 0 : (globalBounds.minX * multL).toFixed(1);
             let bx2 = globalBounds.maxX === -Infinity ? 0 : (globalBounds.maxX * multL).toFixed(1);
@@ -866,23 +793,31 @@
             let by2 = globalBounds.maxY === -Infinity ? 0 : (globalBounds.maxY * multL).toFixed(1);
             let bz = globalBounds.minZ === Infinity ? 0 : (globalBounds.minZ * multL).toFixed(2);
             
-            document.getElementById('statBoundsXY').innerHTML = `X: ${bx1} / ${bx2}<br>Y: ${by1} / ${by2}`;
-            document.getElementById('statBoundsZ').innerText = bz + unitTxt;
+            let bxyEl = document.getElementById('statBoundsXY');
+            if(bxyEl) bxyEl.innerHTML = `X: ${bx1} / ${bx2}<br>Y: ${by1} / ${by2}`;
+            
+            let bzEl = document.getElementById('statBoundsZ');
+            if(bzEl) bzEl.innerText = bz + unitTxt;
 
             let totalSec = Math.round(stats.timeMin * 60);
             if(isNaN(totalSec) || !isFinite(totalSec)) totalSec = 0;
             let h = Math.floor(totalSec / 3600).toString().padStart(2, '0');
             let m = Math.floor((totalSec % 3600) / 60).toString().padStart(2, '0');
             let s = (totalSec % 60).toString().padStart(2, '0');
-            document.getElementById('statTime').innerText = `${h}:${m}:${s}`;
+            
+            let timeEl = document.getElementById('statTime');
+            if(timeEl) timeEl.innerText = `${h}:${m}:${s}`;
         }
 
-        // DOSYA SEÇİMİ
         window.handleFileUpload = function(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = e => { document.getElementById('gcodeInput').value = e.target.result; window.startAnalysis(); };
+                reader.onload = e => { 
+                    let inp = document.getElementById('gcodeInput');
+                    if(inp) inp.value = e.target.result; 
+                    window.startAnalysis(); 
+                };
                 reader.readAsText(file);
             }
         };
@@ -915,17 +850,21 @@ G2 X-10 Y-10 I10 J0
 G0 Z20 (Bitiş)
 M5
 M30`;
-            document.getElementById('gcodeInput').value = sampleGcode;
-            window.startAnalysis();
+            let inp = document.getElementById('gcodeInput');
+            if(inp) {
+                inp.value = sampleGcode;
+                window.startAnalysis();
+            }
         };
 
-        // AI CO-PILOT
         window.toggleAIChat = function() {
             aiChatOpen = !aiChatOpen;
             const win = document.getElementById('aiChatWindow');
+            if(!win) return;
             if(aiChatOpen) {
                 win.classList.add('open');
-                if(document.getElementById('aiMessages').innerHTML.trim() === '') {
+                let msgs = document.getElementById('aiMessages');
+                if(msgs && msgs.innerHTML.trim() === '') {
                     appendAIMessage('bot', dict[currentLang].aiWelcome);
                 }
             } else {
@@ -935,6 +874,7 @@ M30`;
 
         function appendAIMessage(sender, text) {
             const div = document.getElementById('aiMessages');
+            if(!div) return;
             const bubble = document.createElement('div');
             bubble.className = `ai-msg msg-${sender}`;
             bubble.innerHTML = text;
@@ -949,7 +889,7 @@ M30`;
             appendAIMessage('bot', `<span id="aiTyp">${dict[currentLang].aiWait}</span>`);
             setTimeout(() => {
                 let typEl = document.getElementById('aiTyp');
-                if(typEl) typEl.parentNode.remove();
+                if(typEl && typEl.parentNode) typEl.parentNode.remove();
                 
                 let rapidRatio = (stats.rapidDist / (stats.cutDist + stats.rapidDist)) * 100;
                 if(isNaN(rapidRatio)) rapidRatio = 0;
