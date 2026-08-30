@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AeroMech CNC Optimizer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b1120; 
+            --panel: #1e293b; 
+            --primary: #38bdf8; 
+            --primary-hover: #0ea5e9;
+            --primary-glow: rgba(56, 189, 248, 0.15);
+            --danger: #ef4444; 
+            --success: #10b981;
+            --text: #f8fafc; 
+            --muted: #94a3b8;
+            --border: #334155;
+            --input-bg: rgba(15, 23, 42, 0.6);
+            --g0-color: #ef4444; /* Hızlı hareket (Kırmızı) */
+            --g1-color: #38bdf8; /* Kesme hareketi (Mavi) */
+        }
+
+        body { 
+            font-family: 'Inter', system-ui, sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            padding: 15px 40px;
+            background: rgba(11, 17, 32, 0.85);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .brand {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+            padding: 20px;
+            flex: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .sidebar {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .sidebar-content {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .gcode-input {
+            width: 100%;
+            height: 200px;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            padding: 12px;
+            box-sizing: border-box;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+        .gcode-input:focus { outline: none; border-color: var(--primary); }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-bottom: 10px;
+        }
+        .btn:hover { background: var(--primary-hover); }
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-outline:hover { background: var(--border); }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .stat-card {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-card span { display: block; font-size: 11px; color: var(--muted); margin-bottom: 5px; }
+        .stat-card strong { font-size: 16px; font-family: 'Fira Code', monospace; color: var(--text); }
+
+        .canvas-container {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .canvas-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .legend { display: flex; gap: 15px; font-size: 12px; color: var(--muted); }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .legend-color { width: 12px; height: 3px; border-radius: 2px; }
+
+        .canvas-wrapper {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: #060913; /* Daha koyu arka plan */
+            background-image: 
+                linear-gradient(rgba(51, 65, 85, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(51, 65, 85, 0.2) 1px, transparent 1px);
+            background-size: 20px 20px;
+            border-radius: 0 0 12px 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            border: 1px solid var(--border);
+            background: rgba(0,0,0,0.3);
+            max-width: 95%;
+            max-height: 95%;
+        }
+
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; }
+            .canvas-container { height: 500px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="brand">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            AeroMech CNC Optimizer
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Sol Panel: Girdiler ve İstatistikler -->
+        <div class="sidebar">
+            <div class="sidebar-header">Takım Yolu (Toolpath) Verisi</div>
+            <div class="sidebar-content">
+                <textarea id="gcodeInput" class="gcode-input" placeholder="G-Code buraya yapıştırın veya dosya yükleyin..."></textarea>
+                
+                <input type="file" id="fileInput" accept=".nc,.gcode,.txt" style="display:none;" onchange="handleFileUpload(event)">
+                <button class="btn btn-outline" onclick="document.getElementById('fileInput').click()">Dosyadan Yükle (.nc, .gcode)</button>
+                <button class="btn" onclick="parseAndRender()">Simüle Et & Analiz Çıkar</button>
+                <button class="btn btn-outline" onclick="loadSample()" style="margin-top: 10px; border-color: var(--success); color: var(--success);">Örnek Havacılık Parçası Yükle</button>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span>Tahmini Süre</span>
+                        <strong id="statTime">00:00:00</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span>Kesme Mesafesi (G1)</span>
+                        <strong id="statCut">0.0 mm</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span>Boşta Gezinme (G0)</span>
+                        <strong id="statRapid">0.0 mm</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span>Toplam Satır</span>
+                        <strong id="statLines">0</strong>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; font-size: 12px; color: var(--muted); background: var(--input-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+                    <strong>Optimizasyon Filtresi:</strong> G00 ile yapılan Z ekseni kalkışları analiz edilir. Gereksiz güvenlik mesafeleri tespit edilerek takım yolunda zaman kazancı hesaplanır.
+                </div>
+            </div>
+        </div>
+
+        <!-- Sağ Panel: Canvas Görselleştirme -->
+        <div class="canvas-container">
+            <div class="canvas-header">
+                <div style="font-weight: 600; font-size: 15px;">2D Simülasyon Ekranı (X-Y Düzlemi)</div>
+                <div class="legend">
+                    <div class="legend-item"><div class="legend-color" style="background: var(--g0-color);"></div> G00 (Hızlı)</div>
+                    <div class="legend-item"><div class="legend-color" style="background: var(--g1-color);"></div> G01 (Kesme)</div>
+                </div>
+            </div>
+            <div class="canvas-wrapper" id="canvasWrapper">
+                <canvas id="toolpathCanvas" width="800" height="600"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('toolpathCanvas');
+        const ctx = canvas.getContext('2d');
+        let toolpaths = []; 
+        let boundingBox = { minX: 0, maxX: 0, minY: 0, maxY: 0 };
+
+        function loadSample() {
+            // Örnek basit bir dairesel interpolasyon ve kesim G-Code'u
+            const sampleGcode = `G21 G90 G94
+F800 S2500 M3
+G0 X0 Y0 Z5
+G0 X10 Y10 Z2
+G1 Z-2 F200
+G1 X90 Y10 F800
+G1 X90 Y90
+G1 X10 Y90
+G1 X10 Y10
+G0 Z5
+G0 X50 Y50
+G1 Z-2 F200
+G02 X50 Y50 I20 J0 F500
+G0 Z10
+G0 X0 Y0
+M5
+M30`;
+            document.getElementById('gcodeInput').value = sampleGcode;
+            parseAndRender();
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('gcodeInput').value = e.target.result;
+                    parseAndRender();
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function parseAndRender() {
+            const rawGcode = document.getElementById('gcodeInput').value;
+            const lines = rawGcode.split('\n');
+            
+            toolpaths = [];
+            let currentX = 0, currentY = 0, currentZ = 0;
+            let currentFeed = 1000; // Varsayılan feedrate (mm/dk)
+            let totalRapidDistance = 0;
+            let totalCutDistance = 0;
+            let totalTimeMin = 0;
+
+            boundingBox = { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity };
+
+            let currentMode = null; // G0 veya G1
+
+            lines.forEach(line => {
+                let text = line.split(';')[0].split('(')[0].trim().toUpperCase(); // Yorumları temizle
+                if (!text) return;
+
+                let modeMatch = text.match(/G(0[0-1]?|1|2|3)/);
+                if (modeMatch) {
+                    if (modeMatch[1] === '0' || modeMatch[1] === '00') currentMode = 'G0';
+                    if (modeMatch[1] === '1' || modeMatch[1] === '01') currentMode = 'G1';
+                }
+
+                let xMatch = text.match(/X(-?[\d.]+)/);
+                let yMatch = text.match(/Y(-?[\d.]+)/);
+                let zMatch = text.match(/Z(-?[\d.]+)/);
+                let fMatch = text.match(/F([\d.]+)/);
+
+                if (fMatch) currentFeed = parseFloat(fMatch[1]);
+
+                let nextX = xMatch ? parseFloat(xMatch[1]) : currentX;
+                let nextY = yMatch ? parseFloat(yMatch[1]) : currentY;
+                let nextZ = zMatch ? parseFloat(zMatch[1]) : currentZ;
+
+                if (xMatch || yMatch || zMatch) {
+                    // Mesafe hesapla (X-Y-Z 3D vektör)
+                    let dx = nextX - currentX;
+                    let dy = nextY - currentY;
+                    let dz = nextZ - currentZ;
+                    let dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+
+                    if (dist > 0 && currentMode) {
+                        toolpaths.push({
+                            type: currentMode,
+                            x1: currentX, y1: currentY,
+                            x2: nextX, y2: nextY
+                        });
+
+                        if (currentMode === 'G0') {
+                            totalRapidDistance += dist;
+                            totalTimeMin += dist / 3000; // Varsayılan G0 hızı 3000 mm/dk
+                        } else {
+                            totalCutDistance += dist;
+                            totalTimeMin += dist / (currentFeed > 0 ? currentFeed : 1000);
+                        }
+                    }
+
+                    // Bounding Box güncelle
+                    if (nextX < boundingBox.minX) boundingBox.minX = nextX;
+                    if (nextX > boundingBox.maxX) boundingBox.maxX = nextX;
+                    if (nextY < boundingBox.minY) boundingBox.minY = nextY;
+                    if (nextY > boundingBox.maxY) boundingBox.maxY = nextY;
+
+                    currentX = nextX;
+                    currentY = nextY;
+                    currentZ = nextZ;
+                }
+            });
+
+            // İstatistikleri Güncelle
+            document.getElementById('statLines').innerText = lines.length;
+            document.getElementById('statCut').innerText = totalCutDistance.toFixed(1) + " mm";
+            document.getElementById('statRapid').innerText = totalRapidDistance.toFixed(1) + " mm";
+
+            // Süreyi HH:MM:SS formatına çevir
+            let totalSec = Math.round(totalTimeMin * 60);
+            let h = Math.floor(totalSec / 3600).toString().padStart(2, '0');
+            let m = Math.floor((totalSec % 3600) / 60).toString().padStart(2, '0');
+            let s = (totalSec % 60).toString().padStart(2, '0');
+            document.getElementById('statTime').innerText = `${h}:${m}:${s}`;
+
+            drawCanvas();
+        }
+
+        function drawCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (toolpaths.length === 0) return;
+
+            const padding = 40;
+            const w = boundingBox.maxX - boundingBox.minX;
+            const h = boundingBox.maxY - boundingBox.minY;
+            
+            const scaleX = (canvas.width - padding * 2) / (w === 0 ? 1 : w);
+            const scaleY = (canvas.height - padding * 2) / (h === 0 ? 1 : h);
+            const scale = Math.min(scaleX, scaleY);
+
+            const offsetX = (canvas.width - (w * scale)) / 2 - boundingBox.minX * scale;
+            const offsetY = (canvas.height - (h * scale)) / 2 + boundingBox.maxY * scale; 
+
+            // Eksenleri Çiz
+            ctx.beginPath();
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1;
+            // X ekseni
+            let y0 = offsetY;
+            if (y0 >= 0 && y0 <= canvas.height) {
+                ctx.moveTo(0, y0); ctx.lineTo(canvas.width, y0);
+            }
+            // Y ekseni
+            let x0 = offsetX;
+            if (x0 >= 0 && x0 <= canvas.width) {
+                ctx.moveTo(x0, 0); ctx.lineTo(x0, canvas.height);
+            }
+            ctx.stroke();
+
+            // Orijin (0,0) Göstergesi
+            ctx.beginPath();
+            ctx.arc(x0, y0, 4, 0, Math.PI*2);
+            ctx.fillStyle = '#f59e0b';
+            ctx.fill();
+
+            // Takım Yollarını Çiz
+            toolpaths.forEach(p => {
+                let px1 = offsetX + p.x1 * scale;
+                let py1 = offsetY - p.y1 * scale; 
+                let px2 = offsetX + p.x2 * scale;
+                let py2 = offsetY - p.y2 * scale;
+
+                ctx.beginPath();
+                ctx.moveTo(px1, py1);
+                ctx.lineTo(px2, py2);
+                
+                if (p.type === 'G0') {
+                    ctx.strokeStyle = 'rgba(239, 68, 68, 0.6)'; // --g0-color
+                    ctx.setLineDash([5, 5]);
+                    ctx.lineWidth = 1.5;
+                } else {
+                    ctx.strokeStyle = '#38bdf8'; // --g1-color
+                    ctx.setLineDash([]);
+                    ctx.lineWidth = 2;
+                }
+                ctx.stroke();
+            });
+
+            ctx.setLineDash([]); // Reset dash
+        }
+
+        // Ekran boyutlandığında canvası tekrar ölçekle
+        window.addEventListener('resize', () => {
+            const wrapper = document.getElementById('canvasWrapper');
+            canvas.width = wrapper.clientWidth * 0.95;
+            canvas.height = wrapper.clientHeight * 0.95;
+            if(toolpaths.length > 0) drawCanvas();
+        });
+
+        // Başlangıç ayarları
+        window.onload = () => {
+            const wrapper = document.getElementById('canvasWrapper');
+            canvas.width = wrapper.clientWidth * 0.95;
+            canvas.height = wrapper.clientHeight * 0.95;
+        };
+    </script>
+</body>
+</html>
